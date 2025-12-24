@@ -1,0 +1,2334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noël Creator Studio | Créez vos vœux interactifs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-red: #dc2626;
+            --primary-green: #16a34a;
+            --primary-gold: #f59e0b;
+            --primary-blue: #1d4ed8;
+            --snow-white: #f8fafc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            color: var(--snow-white);
+            overflow-x: hidden;
+        }
+        
+        .creator-studio {
+            display: grid;
+            grid-template-columns: 280px 1fr 350px;
+            grid-template-rows: 80px 1fr;
+            min-height: 100vh;
+            gap: 1px;
+            background: #334155;
+        }
+        
+        /* Header */
+        .studio-header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-bottom: 1px solid #475569;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 50;
+        }
+        
+        .logo {
+            font-family: 'Mountains of Christmas', cursive;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-red), var(--primary-gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        /* Sidebar Navigation */
+        .nav-sidebar {
+            background: #1e293b;
+            border-right: 1px solid #475569;
+            padding: 1.5rem 0;
+            overflow-y: auto;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .nav-item.active {
+            background: rgba(30, 64, 175, 0.2);
+            border-left-color: var(--primary-blue);
+        }
+        
+        .nav-icon {
+            font-size: 1.25rem;
+            width: 24px;
+            text-align: center;
+        }
+        
+        /* Main Workspace */
+        .workspace {
+            background: #0f172a;
+            padding: 2rem;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .experience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .experience-card {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+        
+        .experience-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-blue);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        .experience-card.selected {
+            border-color: var(--primary-gold);
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+        }
+        
+        .card-preview {
+            height: 160px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: #1e293b;
+            border-left: 1px solid #475569;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        .control-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .color-picker {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        
+        .color-option.selected {
+            border-color: white;
+            box-shadow: 0 0 0 2px currentColor;
+        }
+        
+        /* Preview Modal */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .preview-content {
+            background: #1e293b;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            border: 1px solid #475569;
+        }
+        
+        /* Animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .creator-studio {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr auto;
+            }
+            
+            .nav-sidebar {
+                order: 3;
+                border-right: none;
+                border-top: 1px solid #475569;
+            }
+            
+            .control-panel {
+                order: 2;
+                border-left: none;
+                border-top: 1px solid #475569;
+            }
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Creator Studio Layout -->
+    <div class="creator-studio">
+        <!-- Header -->
+        <header class="studio-header">
+            <div class="logo">
+                <i class="fas fa-snowflake"></i>
+                Noël Creator Studio
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="relative group">
+                    <button id="previewBtn" class="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                        <i class="fas fa-eye mr-2"></i>Prévisualiser
+                    </button>
+                </div>
+                
+                <button id="shareBtn" class="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                    <i class="fas fa-share-alt mr-2"></i>Partager
+                </button>
+            </div>
+        </header>
+        
+        <!-- Navigation Sidebar -->
+        <nav class="nav-sidebar">
+            <div class="space-y-1">
+                <div class="nav-item active" data-tab="experiences">
+                    <div class="nav-icon">🎮</div>
+                    <div>
+                        <div class="font-semibold">Expériences</div>
+                        <div class="text-sm text-gray-400">Choisissez votre jeu</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-tab="customization">
+                    <div class="nav-icon">🎨</div>
+                    <div>
+                        <div class="font-semibold">Personnalisation</div>
+                        <div class="text-sm text-gray-400">Ajustez l'apparence</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-tab="messages">
+                    <div class="nav-icon">💬</div>
+                    <div>
+                        <div class="font-semibold">Messages</div>
+                        <div class="text-sm text-gray-400">Écrivez vos vœux</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-tab="collaborative">
+                    <div class="nav-icon">👥</div>
+                    <div>
+                        <div class="font-semibold">Collaboratif</div>
+                        <div class="text-sm text-gray-400">Arbre partagé</div>
+                    </div>
+                </div>
+                
+                <div class="nav-item" data-tab="share">
+                    <div class="nav-icon">📤</div>
+                    <div>
+                        <div class="font-semibold">Partage</div>
+                        <div class="text-sm text-gray-400">Envoyez vos créations</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 px-4">
+                <div class="text-sm text-gray-400 mb-3">Vos créations récentes</div>
+                <div id="recentCreations" class="space-y-2">
+                    <!-- Rempli dynamiquement -->
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <!-- Experiences Tab -->
+            <div id="experiencesTab" class="tab-content active">
+                <h2 class="text-2xl font-bold mb-2">Choisissez votre expérience</h2>
+                <p class="text-gray-400 mb-6">Sélectionnez le type de vœu interactif que vous souhaitez créer et personnaliser</p>
+                
+                <div class="experience-grid">
+                    <!-- Gift Catcher Card -->
+                    <div class="experience-card" data-experience="giftcatcher">
+                        <div class="card-preview" style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);">
+                            🎁
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg">Gift Catcher Rush</h3>
+                                <span class="text-xs bg-blue-500 text-white px-2 py-1 rounded-full">Jeu</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">Attrapez des cadeaux dans un jeu rapide et compétitif</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span>30 secondes</span>
+                                <i class="fas fa-users ml-4 mr-1"></i>
+                                <span>Compétitif</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Winter Explorer Card -->
+                    <div class="experience-card" data-experience="winterexplorer">
+                        <div class="card-preview" style="background: linear-gradient(135deg, #065f46 0%, #10b981 100%);">
+                            ❄️
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg">Winter Wonderland</h3>
+                                <span class="text-xs bg-green-500 text-white px-2 py-1 rounded-full">Exploration</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">Découvrez des éléments secrets dans un paysage hivernal</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-search mr-1"></i>
+                                <span>8 éléments</span>
+                                <i class="fas fa-compass ml-4 mr-1"></i>
+                                <span>Immersif</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Collaborative Tree Card -->
+                    <div class="experience-card" data-experience="collaborativetree">
+                        <div class="card-preview" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 100%);">
+                            🎄
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg">Arbre Collaboratif</h3>
+                                <span class="text-xs bg-orange-500 text-white px-2 py-1 rounded-full">Social</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">Un sapin que chacun peut décorer avec vos amis</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-users mr-1"></i>
+                                <span>Illimité</span>
+                                <i class="fas fa-heart ml-4 mr-1"></i>
+                                <span>Partageable</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Workshop Card -->
+                    <div class="experience-card" data-experience="cardworkshop">
+                        <div class="card-preview" style="background: linear-gradient(135deg, #5b21b6 0%, #8b5cf6 100%);">
+                            ✨
+                        </div>
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-lg">Atelier de Carte</h3>
+                                <span class="text-xs bg-purple-500 text-white px-2 py-1 rounded-full">Créatif</span>
+                            </div>
+                            <p class="text-sm text-gray-400 mb-3">Créez une carte animée unique avec vos propres médias</p>
+                            <div class="flex items-center text-sm text-gray-500">
+                                <i class="fas fa-image mr-1"></i>
+                                <span>Personnalisable</span>
+                                <i class="fas fa-music ml-4 mr-1"></i>
+                                <span>Audiovisuel</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-8 p-6 bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl border border-blue-700/30">
+                    <h3 class="font-bold text-lg mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-3"></i>Comment ça marche ?
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-black/30 p-4 rounded-xl">
+                            <div class="text-2xl mb-2">1</div>
+                            <div class="font-semibold mb-1">Choisissez une expérience</div>
+                            <p class="text-sm text-gray-400">Sélectionnez le type de vœu qui correspond à votre humeur</p>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl">
+                            <div class="text-2xl mb-2">2</div>
+                            <div class="font-semibold mb-1">Personnalisez tout</div>
+                            <p class="text-sm text-gray-400">Messages, couleurs, éléments... faites-le vôtre</p>
+                        </div>
+                        <div class="bg-black/30 p-4 rounded-xl">
+                            <div class="text-2xl mb-2">3</div>
+                            <div class="font-semibold mb-1">Partagez facilement</div>
+                            <p class="text-sm text-gray-400">Générez un lien unique à envoyer à vos proches</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Customization Tab -->
+            <div id="customizationTab" class="tab-content hidden">
+                <!-- Contenu rempli dynamiquement selon l'expérience choisie -->
+            </div>
+            
+            <!-- Messages Tab -->
+            <div id="messagesTab" class="tab-content hidden">
+                <!-- Contenu rempli dynamiquement -->
+            </div>
+            
+            <!-- Collaborative Tree Tab -->
+            <div id="collaborativeTab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-2">Arbre de Noël Collaboratif</h2>
+                <p class="text-gray-400 mb-6">Créez un sapin que chacun de vos amis pourra décorer avec un message</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Tree Editor -->
+                    <div class="bg-gradient-to-br from-emerald-900/30 to-green-900/30 rounded-2xl p-6 border border-emerald-700/30">
+                        <h3 class="font-bold text-xl mb-6 flex items-center">
+                            <i class="fas fa-tree mr-3"></i>Éditeur d'Arbre
+                        </h3>
+                        
+                        <div class="mb-6">
+                            <label class="block mb-3 font-semibold">Style de l'arbre :</label>
+                            <div class="flex flex-wrap gap-3">
+                                <button class="tree-style-btn active" data-style="classic">
+                                    <div class="w-16 h-20 bg-gradient-to-b from-green-700 to-green-900 rounded-lg mb-2"></div>
+                                    <span class="text-xs">Classique</span>
+                                </button>
+                                <button class="tree-style-btn" data-style="modern">
+                                    <div class="w-16 h-20 bg-gradient-to-b from-teal-600 to-teal-800 rounded-lg mb-2"></div>
+                                    <span class="text-xs">Moderne</span>
+                                </button>
+                                <button class="tree-style-btn" data-style="elegant">
+                                    <div class="w-16 h-20 bg-gradient-to-b from-blue-800 to-indigo-900 rounded-lg mb-2"></div>
+                                    <span class="text-xs">Élégant</span>
+                                </button>
+                                <button class="tree-style-btn" data-style="colorful">
+                                    <div class="w-16 h-20 bg-gradient-to-b from-purple-600 to-pink-600 rounded-lg mb-2"></div>
+                                    <span class="text-xs">Coloré</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block mb-3 font-semibold">Décorations disponibles :</label>
+                            <div class="flex flex-wrap gap-3 mb-4">
+                                <div class="decoration-option" data-decoration="ball" data-color="red">
+                                    <div class="w-10 h-10 bg-red-500 rounded-full"></div>
+                                </div>
+                                <div class="decoration-option" data-decoration="ball" data-color="gold">
+                                    <div class="w-10 h-10 bg-yellow-500 rounded-full"></div>
+                                </div>
+                                <div class="decoration-option" data-decoration="ball" data-color="blue">
+                                    <div class="w-10 h-10 bg-blue-500 rounded-full"></div>
+                                </div>
+                                <div class="decoration-option" data-decoration="star">
+                                    <div class="w-10 h-10 bg-yellow-300 flex items-center justify-center">★</div>
+                                </div>
+                                <div class="decoration-option" data-decoration="gift">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">🎁</div>
+                                </div>
+                                <div class="decoration-option" data-decoration="heart">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">❤️</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-6">
+                            <label class="block mb-3 font-semibold">Message d'invitation :</label>
+                            <textarea id="treeInvitation" class="w-full p-4 bg-black/30 border border-white/20 rounded-xl h-32" placeholder="Invitez vos amis à décorer votre arbre...">Rejoignez notre arbre de Noël collaboratif ! Chacun peut ajouter une décoration avec un message. Joyeuses fêtes ! 🎄</textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Tree Preview -->
+                    <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+                        <h3 class="font-bold text-xl mb-6 flex items-center">
+                            <i class="fas fa-eye mr-3"></i>Aperçu de l'Arbre
+                        </h3>
+                        
+                        <div class="flex justify-center mb-6">
+                            <div id="treePreview" class="relative" style="width: 250px; height: 350px;">
+                                <!-- L'arbre sera généré ici -->
+                            </div>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-xl p-4 mb-6">
+                            <div class="flex justify-between items-center mb-3">
+                                <span class="font-semibold">Décorations ajoutées :</span>
+                                <span id="decorationCount" class="bg-green-600 text-white px-3 py-1 rounded-full text-sm">0</span>
+                            </div>
+                            <div id="decorationsList" class="space-y-2 max-h-32 overflow-y-auto">
+                                <!-- Liste des décorations -->
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button id="addTestDecoration" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl font-semibold hover:opacity-90 transition-opacity mr-3">
+                                <i class="fas fa-plus mr-2"></i>Ajouter une décoration test
+                            </button>
+                            <button id="clearDecorations" class="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                                <i class="fas fa-trash mr-2"></i>Tout effacer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tree Sharing -->
+                <div class="mt-8 bg-gradient-to-r from-green-900/30 to-emerald-900/30 rounded-2xl p-6 border border-green-700/30">
+                    <h3 class="font-bold text-xl mb-4 flex items-center">
+                        <i class="fas fa-share-alt mr-3"></i>Partagez votre Arbre
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-gray-300 mb-4">Chaque personne qui reçoit le lien pourra ajouter une décoration avec son nom et un message.</p>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                    <span>Chaque décoration est unique</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                    <span>Les messages sont visibles par tous</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mr-3">
+                                        <i class="fas fa-check text-white"></i>
+                                    </div>
+                                    <span>L'arbre évolue en temps réel</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-black/30 rounded-xl p-5">
+                            <label class="block mb-3 font-semibold">Votre nom pour l'invitation :</label>
+                            <input type="text" id="treeCreatorName" placeholder="Votre nom" class="w-full p-3 bg-white/10 border border-white/20 rounded-lg mb-4" value="">
+                            
+                            <button id="generateTreeLink" class="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                                <i class="fas fa-link mr-2"></i>Générer le lien collaboratif
+                            </button>
+                            
+                            <div id="treeLinkContainer" class="mt-4 hidden">
+                                <label class="block mb-2 text-sm">Lien à partager :</label>
+                                <div class="flex">
+                                    <input type="text" id="treeShareLink" readonly class="flex-1 p-3 bg-black/50 border border-white/20 rounded-l-lg">
+                                    <button id="copyTreeLink" class="px-4 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-r-lg">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Card Workshop Tab -->
+            <div id="cardWorkshopTab" class="tab-content hidden">
+                <h2 class="text-2xl font-bold mb-2">Atelier de Carte Personnalisée</h2>
+                <p class="text-gray-400 mb-6">Créez une carte animée unique avec vos propres images, messages et effets</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Card Editor -->
+                    <div class="lg:col-span-2 bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-2xl p-6 border border-purple-700/30">
+                        <h3 class="font-bold text-xl mb-6 flex items-center">
+                            <i class="fas fa-palette mr-3"></i>Éditeur de Carte
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <label class="block mb-3 font-semibold">Style de la carte :</label>
+                                <select id="cardStyle" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg">
+                                    <option value="elegant">Élégant & Classique</option>
+                                    <option value="modern">Moderne & Minimaliste</option>
+                                    <option value="fun">Fun & Coloré</option>
+                                    <option value="snowy">Paysage Enneigé</option>
+                                    <option value="gold">Doré & Luxueux</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-3 font-semibold">Format :</label>
+                                <div class="flex gap-3">
+                                    <button class="format-btn active" data-format="portrait">
+                                        <div class="w-12 h-16 bg-white/20 rounded mb-2"></div>
+                                        <span class="text-xs">Portrait</span>
+                                    </button>
+                                    <button class="format-btn" data-format="landscape">
+                                        <div class="w-16 h-12 bg-white/20 rounded mb-2"></div>
+                                        <span class="text-xs">Paysage</span>
+                                    </button>
+                                    <button class="format-btn" data-format="square">
+                                        <div class="w-12 h-12 bg-white/20 rounded mb-2"></div>
+                                        <span class="text-xs">Carré</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Image Upload -->
+                        <div class="mb-8">
+                            <label class="block mb-3 font-semibold">Ajoutez vos images :</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div class="upload-area aspect-square bg-black/30 border-2 border-dashed border-white/30 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors" data-position="background">
+                                    <i class="fas fa-image text-3xl mb-2 text-gray-400"></i>
+                                    <span class="text-sm">Image de fond</span>
+                                </div>
+                                <div class="upload-area aspect-square bg-black/30 border-2 border-dashed border-white/30 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors" data-position="foreground">
+                                    <i class="fas fa-user text-3xl mb-2 text-gray-400"></i>
+                                    <span class="text-sm">Votre photo</span>
+                                </div>
+                                <div class="upload-area aspect-square bg-black/30 border-2 border-dashed border-white/30 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors" data-position="decoration1">
+                                    <i class="fas fa-star text-3xl mb-2 text-gray-400"></i>
+                                    <span class="text-sm">Décoration 1</span>
+                                </div>
+                                <div class="upload-area aspect-square bg-black/30 border-2 border-dashed border-white/30 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-colors" data-position="decoration2">
+                                    <i class="fas fa-snowflake text-3xl mb-2 text-gray-400"></i>
+                                    <span class="text-sm">Décoration 2</span>
+                                </div>
+                            </div>
+                            <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                        </div>
+                        
+                        <!-- Audio Message -->
+                        <div class="mb-8">
+                            <label class="block mb-3 font-semibold">Message audio (optionnel) :</label>
+                            <div class="flex items-center gap-4">
+                                <button id="recordAudio" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                                    <i class="fas fa-microphone mr-2"></i>Enregistrer un message
+                                </button>
+                                <button id="uploadAudio" class="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                                    <i class="fas fa-upload mr-2"></i>Importer un audio
+                                </button>
+                            </div>
+                            <div id="audioPreview" class="mt-4 hidden">
+                                <div class="flex items-center justify-between bg-black/30 p-4 rounded-xl">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-music text-2xl mr-4"></i>
+                                        <div>
+                                            <div class="font-semibold">Message vocal</div>
+                                            <div class="text-sm text-gray-400" id="audioDuration">0:00</div>
+                                        </div>
+                                    </div>
+                                    <button id="deleteAudio" class="text-red-400 hover:text-red-300">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Text Messages -->
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block mb-3 font-semibold">Message principal :</label>
+                                <textarea id="mainMessage" class="w-full p-4 bg-black/30 border border-white/20 rounded-xl h-32" placeholder="Votre message de vœux principal...">Joyeux Noël en avance ! Que cette période soit remplie de joie, de paix et de bonheur pour vous et vos proches. 🎄✨</textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-3 font-semibold">Message personnel (optionnel) :</label>
+                                <textarea id="personalMessage" class="w-full p-4 bg-black/30 border border-white/20 rounded-xl h-24" placeholder="Un message plus personnel pour le destinataire..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Preview -->
+                    <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+                        <h3 class="font-bold text-xl mb-6 flex items-center">
+                            <i class="fas fa-eye mr-3"></i>Aperçu de la Carte
+                        </h3>
+                        
+                        <div class="flex justify-center mb-6">
+                            <div id="cardPreview" class="relative bg-gradient-to-br from-blue-900 to-purple-900 rounded-2xl overflow-hidden" style="width: 300px; height: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+                                <!-- La carte sera générée ici -->
+                                <div class="absolute inset-0 flex flex-col items-center justify-center p-6">
+                                    <div class="text-5xl mb-4">🎄</div>
+                                    <h4 class="text-2xl font-bold mb-3 text-center">Joyeux Noël !</h4>
+                                    <p class="text-center text-gray-300">Votre carte personnalisée apparaîtra ici</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Animation Effects -->
+                        <div class="mb-6">
+                            <label class="block mb-3 font-semibold">Effets d'animation :</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="effect-btn active" data-effect="snow">
+                                    <i class="fas fa-snowflake mr-2"></i>Neige
+                                </button>
+                                <button class="effect-btn" data-effect="sparkle">
+                                    <i class="fas fa-sparkle mr-2"></i>Étincelles
+                                </button>
+                                <button class="effect-btn" data-effect="lights">
+                                    <i class="fas fa-lightbulb mr-2"></i>Lumières
+                                </button>
+                                <button class="effect-btn" data-effect="float">
+                                    <i class="fas fa-feather mr-2"></i>Flottement
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Card Details -->
+                        <div class="bg-black/30 rounded-xl p-4 mb-6">
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Style :</span>
+                                    <span id="cardStylePreview" class="font-semibold">Élégant</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Images :</span>
+                                    <span id="cardImagesPreview" class="font-semibold">0/4</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Audio :</span>
+                                    <span id="cardAudioPreview" class="font-semibold text-red-400">Non</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-400">Effets :</span>
+                                    <span id="cardEffectsPreview" class="font-semibold">1</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button id="generateCard" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                            <i class="fas fa-magic mr-2"></i>Générer la carte finale
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Share Tab -->
+            <div id="shareTab" class="tab-content hidden">
+                <!-- Contenu rempli dynamiquement -->
+            </div>
+        </main>
+        
+        <!-- Control Panel -->
+        <aside class="control-panel">
+            <!-- Selected Experience -->
+            <div class="control-section">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <i class="fas fa-cube mr-2"></i>Expérience sélectionnée
+                </h3>
+                <div id="selectedExperience" class="text-center py-8 bg-black/20 rounded-xl">
+                    <div class="text-4xl mb-3">🎮</div>
+                    <div class="text-gray-400">Aucune expérience sélectionnée</div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="control-section">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <i class="fas fa-bolt mr-2"></i>Actions rapides
+                </h3>
+                <div class="space-y-3">
+                    <button id="quickPreview" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-play mr-2"></i>Prévisualiser
+                    </button>
+                    <button id="saveDraft" class="w-full py-3 bg-gradient-to-r from-gray-700 to-gray-800 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-save mr-2"></i>Sauvegarder le brouillon
+                    </button>
+                    <button id="resetAll" class="w-full py-3 bg-gradient-to-r from-red-600 to-pink-600 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center">
+                        <i class="fas fa-undo mr-2"></i>Tout réinitialiser
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Creator Info -->
+            <div class="control-section">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <i class="fas fa-user mr-2"></i>Vos informations
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm mb-2">Votre nom :</label>
+                        <input type="text" id="creatorName" placeholder="Votre nom" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg" value="">
+                    </div>
+                    <div>
+                        <label class="block text-sm mb-2">Message par défaut :</label>
+                        <textarea id="defaultMessage" class="w-full p-3 bg-black/30 border border-white/20 rounded-lg h-24" placeholder="Votre message de vœux par défaut...">Joyeux Noël en avance ! Que la magie des fêtes vous apporte bonheur et sérénité. 🎄✨</textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Color Palette -->
+            <div class="control-section">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <i class="fas fa-palette mr-2"></i>Palette de couleurs
+                </h3>
+                <div class="color-picker">
+                    <div class="color-option selected" style="background: #dc2626;" data-color="#dc2626"></div>
+                    <div class="color-option" style="background: #16a34a;" data-color="#16a34a"></div>
+                    <div class="color-option" style="background: #f59e0b;" data-color="#f59e0b"></div>
+                    <div class="color-option" style="background: #1d4ed8;" data-color="#1d4ed8"></div>
+                    <div class="color-option" style="background: #7c3aed;" data-color="#7c3aed"></div>
+                    <div class="color-option" style="background: #db2777;" data-color="#db2777"></div>
+                    <div class="color-option" style="background: #0d9488;" data-color="#0d9488"></div>
+                    <div class="color-option" style="background: #ea580c;" data-color="#ea580c"></div>
+                </div>
+            </div>
+            
+            <!-- Progress -->
+            <div class="control-section">
+                <h3 class="font-bold text-lg mb-4 flex items-center">
+                    <i class="fas fa-tasks mr-2"></i>Progression
+                </h3>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Expérience</span>
+                            <span id="progressExp" class="font-semibold">0%</span>
+                        </div>
+                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="progressExpBar" class="h-full bg-blue-500 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Personnalisation</span>
+                            <span id="progressCustom" class="font-semibold">0%</span>
+                        </div>
+                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="progressCustomBar" class="h-full bg-green-500 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>Messages</span>
+                            <span id="progressMessages" class="font-semibold">0%</span>
+                        </div>
+                        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                            <div id="progressMessagesBar" class="h-full bg-purple-500 rounded-full" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div id="previewModal" class="preview-modal">
+        <div class="preview-content">
+            <div class="flex justify-between items-center p-6 border-b border-gray-700">
+                <h3 class="text-2xl font-bold">Prévisualisation</h3>
+                <button id="closePreview" class="text-gray-400 hover:text-white text-2xl">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="previewContainer" class="flex items-center justify-center min-h-[400px]">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🎮</div>
+                        <h4 class="text-xl font-bold mb-2">Aucune expérience sélectionnée</h4>
+                        <p class="text-gray-400">Veuillez d'abord sélectionner et configurer une expérience</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Configuration -->
+    <script type="module">
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDEXAMPLEYOURAPIKEYHERE",
+            authDomain: "noel-creator-studio.firebaseapp.com",
+            databaseURL: "https://noel-creator-studio-default-rtdb.firebaseio.com",
+            projectId: "noel-creator-studio",
+            storageBucket: "noel-creator-studio.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890",
+            measurementId: "G-EXAMPLEID"
+        };
+
+        // Initialisation
+        let app, database;
+        
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            database = firebase.database();
+            console.log("Firebase initialisé avec succès");
+        } catch (error) {
+            console.log("Mode hors ligne activé - Firebase non configuré");
+        }
+    </script>
+    
+    <!-- Main Application Script -->
+    <script>
+        // État global de l'application
+        const appState = {
+            selectedExperience: null,
+            creatorName: '',
+            customizations: {
+                giftcatcher: {},
+                winterexplorer: {},
+                collaborativetree: {
+                    style: 'classic',
+                    decorations: [],
+                    invitation: ''
+                },
+                cardworkshop: {
+                    style: 'elegant',
+                    format: 'portrait',
+                    images: {},
+                    audio: null,
+                    messages: {},
+                    effects: ['snow']
+                }
+            },
+            draftId: null,
+            progress: {
+                experience: 0,
+                customization: 0,
+                messages: 0
+            }
+        };
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            initNavigation();
+            initExperienceSelection();
+            initCollaborativeTree();
+            initCardWorkshop();
+            initControlPanel();
+            loadDrafts();
+            
+            // Récupérer le nom du créateur depuis le localStorage
+            const savedName = localStorage.getItem('creatorName');
+            if (savedName) {
+                document.getElementById('creatorName').value = savedName;
+                appState.creatorName = savedName;
+            }
+        });
+
+        // Navigation
+        function initNavigation() {
+            const navItems = document.querySelectorAll('.nav-item');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Mettre à jour la navigation
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Afficher le contenu correspondant
+                    tabContents.forEach(content => {
+                        content.classList.remove('active');
+                        content.classList.add('hidden');
+                    });
+                    
+                    const targetTab = document.getElementById(`${tabId}Tab`);
+                    if (targetTab) {
+                        targetTab.classList.remove('hidden');
+                        targetTab.classList.add('active');
+                    }
+                    
+                    // Si on va sur l'onglet partage, générer le lien
+                    if (tabId === 'share' && appState.selectedExperience) {
+                        updateShareTab();
+                    }
+                });
+            });
+        }
+
+        // Sélection d'expérience
+        function initExperienceSelection() {
+            const experienceCards = document.querySelectorAll('.experience-card');
+            
+            experienceCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const experience = this.dataset.experience;
+                    
+                    // Mettre à jour la sélection visuelle
+                    experienceCards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Mettre à jour l'état
+                    appState.selectedExperience = experience;
+                    
+                    // Mettre à jour le panneau de contrôle
+                    updateSelectedExperienceDisplay();
+                    
+                    // Mettre à jour la progression
+                    updateProgress();
+                    
+                    // Afficher les options de personnalisation
+                    updateCustomizationTab();
+                });
+            });
+        }
+
+        function updateSelectedExperienceDisplay() {
+            const display = document.getElementById('selectedExperience');
+            const experiences = {
+                giftcatcher: { icon: '🎁', name: 'Gift Catcher Rush', color: 'from-blue-600 to-cyan-500' },
+                winterexplorer: { icon: '❄️', name: 'Winter Wonderland', color: 'from-green-600 to-emerald-500' },
+                collaborativetree: { icon: '🎄', name: 'Arbre Collaboratif', color: 'from-orange-600 to-amber-500' },
+                cardworkshop: { icon: '✨', name: 'Atelier de Carte', color: 'from-purple-600 to-pink-500' }
+            };
+            
+            const exp = experiences[appState.selectedExperience];
+            if (exp) {
+                display.innerHTML = `
+                    <div class="text-4xl mb-3">${exp.icon}</div>
+                    <div class="font-bold text-lg mb-1">${exp.name}</div>
+                    <div class="text-sm text-gray-400">Expérience sélectionnée</div>
+                    <div class="mt-4">
+                        <button onclick="quickPreviewExperience()" class="px-4 py-2 bg-gradient-to-r ${exp.color} rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
+                            <i class="fas fa-play mr-1"></i>Prévisualiser
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Arbre Collaboratif
+        function initCollaborativeTree() {
+            // Styles d'arbre
+            const treeStyleBtns = document.querySelectorAll('.tree-style-btn');
+            treeStyleBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    treeStyleBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const style = this.dataset.style;
+                    appState.customizations.collaborativetree.style = style;
+                    renderTreePreview();
+                });
+            });
+            
+            // Décorations
+            const decorationOptions = document.querySelectorAll('.decoration-option');
+            decorationOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const decoration = this.dataset.decoration;
+                    const color = this.dataset.color;
+                    
+                    addDecorationToTree(decoration, color);
+                });
+            });
+            
+            // Message d'invitation
+            const invitationTextarea = document.getElementById('treeInvitation');
+            invitationTextarea.addEventListener('input', function() {
+                appState.customizations.collaborativetree.invitation = this.value;
+            });
+            
+            // Boutons d'action
+            document.getElementById('addTestDecoration').addEventListener('click', addTestDecoration);
+            document.getElementById('clearDecorations').addEventListener('click', clearDecorations);
+            document.getElementById('generateTreeLink').addEventListener('click', generateTreeLink);
+            document.getElementById('copyTreeLink').addEventListener('click', copyTreeLink);
+            
+            // Initialiser l'aperçu
+            renderTreePreview();
+        }
+
+        function renderTreePreview() {
+            const treePreview = document.getElementById('treePreview');
+            const style = appState.customizations.collaborativetree.style;
+            
+            // Couleurs selon le style
+            const styles = {
+                classic: { trunk: '#92400e', leaves: '#15803d', lights: '#dc2626' },
+                modern: { trunk: '#0d9488', leaves: '#14b8a6', lights: '#3b82f6' },
+                elegant: { trunk: '#4f46e5', leaves: '#6366f1', lights: '#f59e0b' },
+                colorful: { trunk: '#db2777', leaves: '#ec4899', lights: '#8b5cf6' }
+            };
+            
+            const colors = styles[style] || styles.classic;
+            
+            // Générer l'arbre SVG
+            treePreview.innerHTML = `
+                <svg width="250" height="350" viewBox="0 0 250 350">
+                    <!-- Tronc -->
+                    <rect x="110" y="270" width="30" height="60" fill="${colors.trunk}" rx="5"/>
+                    
+                    <!-- Feuillage -->
+                    <polygon points="125,50 80,150 170,150" fill="${colors.leaves}" opacity="0.9"/>
+                    <polygon points="125,100 60,220 190,220" fill="${colors.leaves}" opacity="0.8"/>
+                    <polygon points="125,150 40,290 210,290" fill="${colors.leaves}" opacity="0.7"/>
+                    
+                    <!-- Guirlandes -->
+                    <circle cx="125" cy="120" r="4" fill="${colors.lights}"/>
+                    <circle cx="100" cy="160" r="4" fill="${colors.lights}"/>
+                    <circle cx="150" cy="160" r="4" fill="${colors.lights}"/>
+                    <circle cx="85" cy="200" r="4" fill="${colors.lights}"/>
+                    <circle cx="125" cy="200" r="4" fill="${colors.lights}"/>
+                    <circle cx="165" cy="200" r="4" fill="${colors.lights}"/>
+                    <circle cx="70" cy="240" r="4" fill="${colors.lights}"/>
+                    <circle cx="110" cy="240" r="4" fill="${colors.lights}"/>
+                    <circle cx="150" cy="240" r="4" fill="${colors.lights}"/>
+                    <circle cx="180" cy="240" r="4" fill="${colors.lights}"/>
+                    
+                    <!-- Étoile au sommet -->
+                    <polygon points="125,30 130,50 150,50 135,60 140,80 125,70 110,80 115,60 100,50 120,50" fill="#fbbf24"/>
+                    
+                    <!-- Décorations existantes -->
+                    ${appState.customizations.collaborativetree.decorations.map((dec, i) => {
+                        const x = 70 + (i % 4) * 40;
+                        const y = 120 + Math.floor(i / 4) * 40;
+                        
+                        if (dec.type === 'ball') {
+                            return `<circle cx="${x}" cy="${y}" r="8" fill="${dec.color}">
+                                      <animate attributeName="r" values="8;10;8" dur="2s" repeatCount="indefinite"/>
+                                   </circle>`;
+                        } else if (dec.type === 'star') {
+                            return `<polygon points="${x},${y-8} ${x+3},${y-3} ${x+8},${y} ${x+3},${y+3} ${x},${y+8} ${x-3},${y+3} ${x-8},${y} ${x-3},${y-3}" fill="#fbbf24">
+                                      <animateTransform attributeName="transform" type="rotate" values="0 ${x} ${y};360 ${x} ${y}" dur="5s" repeatCount="indefinite"/>
+                                   </polygon>`;
+                        } else if (dec.type === 'gift') {
+                            return `<rect x="${x-10}" y="${y-8}" width="20" height="16" fill="#dc2626" rx="3">
+                                      <rect x="${x-10}" y="${y-2}" width="20" height="4" fill="#f59e0b"/>
+                                      <animateTransform attributeName="transform" type="scale" values="1;1.1;1" dur="3s" repeatCount="indefinite"/>
+                                   </rect>`;
+                        } else if (dec.type === 'heart') {
+                            return `<path d="M ${x},${y} c 0,-10 10,-15 15,0 c 5,-15 15,-10 15,0 c 0,10 -15,20 -30,30 c -15,-10 -30,-20 -30,-30 z" fill="#ec4899">
+                                      <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+                                   </path>`;
+                        }
+                        return '';
+                    }).join('')}
+                </svg>
+            `;
+            
+            // Mettre à jour le compteur
+            document.getElementById('decorationCount').textContent = 
+                appState.customizations.collaborativetree.decorations.length;
+            
+            // Mettre à jour la liste
+            updateDecorationsList();
+        }
+
+        function addDecorationToTree(type, color = null) {
+            const decorations = appState.customizations.collaborativetree.decorations;
+            const name = document.getElementById('creatorName').value || 'Anonyme';
+            
+            decorations.push({
+                type: type,
+                color: color,
+                name: name,
+                message: `Bonne fêtes de la part de ${name}!`,
+                timestamp: Date.now()
+            });
+            
+            renderTreePreview();
+            updateProgress();
+        }
+
+        function addTestDecoration() {
+            const types = ['ball', 'ball', 'star', 'gift', 'heart'];
+            const colors = ['#dc2626', '#f59e0b', '#16a34a', '#3b82f6', '#8b5cf6'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            addDecorationToTree(randomType, randomColor);
+        }
+
+        function clearDecorations() {
+            if (confirm('Voulez-vous vraiment supprimer toutes les décorations ?')) {
+                appState.customizations.collaborativetree.decorations = [];
+                renderTreePreview();
+            }
+        }
+
+        function updateDecorationsList() {
+            const list = document.getElementById('decorationsList');
+            const decorations = appState.customizations.collaborativetree.decorations;
+            
+            if (decorations.length === 0) {
+                list.innerHTML = '<div class="text-gray-400 text-center py-4">Aucune décoration ajoutée</div>';
+                return;
+            }
+            
+            list.innerHTML = decorations.map(dec => `
+                <div class="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                    <div class="flex items-center">
+                        <div class="w-6 h-6 rounded-full mr-3" style="background: ${dec.color || '#ccc'}"></div>
+                        <div>
+                            <div class="text-sm font-semibold">${dec.name}</div>
+                            <div class="text-xs text-gray-400">${dec.type === 'ball' ? 'Boule' : 
+                                dec.type === 'star' ? 'Étoile' : 
+                                dec.type === 'gift' ? 'Cadeau' : 'Cœur'}</div>
+                        </div>
+                    </div>
+                    <button onclick="removeDecoration(${decorations.indexOf(dec)})" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeDecoration(index) {
+            appState.customizations.collaborativetree.decorations.splice(index, 1);
+            renderTreePreview();
+        }
+
+        function generateTreeLink() {
+            const creatorName = document.getElementById('treeCreatorName').value || 
+                               document.getElementById('creatorName').value || 
+                               'Anonyme';
+            
+            // Créer un ID unique pour l'arbre
+            const treeId = 'tree_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Préparer les données
+            const treeData = {
+                id: treeId,
+                creator: creatorName,
+                style: appState.customizations.collaborativetree.style,
+                invitation: appState.customizations.collaborativetree.invitation,
+                decorations: appState.customizations.collaborativetree.decorations,
+                created: Date.now()
+            };
+            
+            // Sauvegarder dans Firebase si disponible
+            if (database) {
+                database.ref('trees/' + treeId).set(treeData)
+                    .then(() => {
+                        console.log('Arbre sauvegardé dans Firebase');
+                    })
+                    .catch(error => {
+                        console.error('Erreur Firebase:', error);
+                    });
+            }
+            
+            // Générer le lien
+            const baseUrl = window.location.origin + window.location.pathname.replace('creator-studio.html', '');
+            const shareUrl = `${baseUrl}collaborative-tree.html?tree=${treeId}`;
+            
+            // Afficher le lien
+            document.getElementById('treeShareLink').value = shareUrl;
+            document.getElementById('treeLinkContainer').classList.remove('hidden');
+            
+            // Copier dans le presse-papier
+            copyToClipboard(shareUrl);
+            showNotification('Lien copié dans le presse-papier !');
+        }
+
+        // Atelier de Carte
+        function initCardWorkshop() {
+            // Format de la carte
+            const formatBtns = document.querySelectorAll('.format-btn');
+            formatBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    formatBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    appState.customizations.cardworkshop.format = this.dataset.format;
+                    updateCardPreview();
+                });
+            });
+            
+            // Style de la carte
+            const cardStyleSelect = document.getElementById('cardStyle');
+            cardStyleSelect.addEventListener('change', function() {
+                appState.customizations.cardworkshop.style = this.value;
+                updateCardPreview();
+            });
+            
+            // Téléchargement d'images
+            const uploadAreas = document.querySelectorAll('.upload-area');
+            const imageUpload = document.getElementById('imageUpload');
+            let currentUploadPosition = null;
+            
+            uploadAreas.forEach(area => {
+                area.addEventListener('click', function() {
+                    currentUploadPosition = this.dataset.position;
+                    imageUpload.click();
+                });
+            });
+            
+            imageUpload.addEventListener('change', function(e) {
+                if (e.target.files[0] && currentUploadPosition) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        appState.customizations.cardworkshop.images[currentUploadPosition] = event.target.result;
+                        updateCardPreview();
+                        updateUploadArea(currentUploadPosition, event.target.result);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Messages
+            const mainMessage = document.getElementById('mainMessage');
+            const personalMessage = document.getElementById('personalMessage');
+            
+            mainMessage.addEventListener('input', function() {
+                appState.customizations.cardworkshop.messages.main = this.value;
+                updateCardPreview();
+            });
+            
+            personalMessage.addEventListener('input', function() {
+                appState.customizations.cardworkshop.messages.personal = this.value;
+                updateCardPreview();
+            });
+            
+            // Effets d'animation
+            const effectBtns = document.querySelectorAll('.effect-btn');
+            effectBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const effect = this.dataset.effect;
+                    const effects = appState.customizations.cardworkshop.effects;
+                    
+                    if (this.classList.contains('active')) {
+                        // Retirer l'effet
+                        const index = effects.indexOf(effect);
+                        if (index > -1) {
+                            effects.splice(index, 1);
+                        }
+                        this.classList.remove('active');
+                    } else {
+                        // Ajouter l'effet
+                        effects.push(effect);
+                        this.classList.add('active');
+                    }
+                    
+                    updateCardPreview();
+                });
+            });
+            
+            // Bouton de génération
+            document.getElementById('generateCard').addEventListener('click', generateCard);
+            
+            // Initialiser l'aperçu
+            updateCardPreview();
+        }
+
+        function updateUploadArea(position, imageUrl) {
+            const area = document.querySelector(`.upload-area[data-position="${position}"]`);
+            if (area && imageUrl) {
+                area.innerHTML = `
+                    <div class="w-full h-full rounded-lg overflow-hidden">
+                        <img src="${imageUrl}" class="w-full h-full object-cover">
+                    </div>
+                `;
+                area.style.borderStyle = 'solid';
+                area.style.borderColor = '#8b5cf6';
+            }
+        }
+
+        function updateCardPreview() {
+            const preview = document.getElementById('cardPreview');
+            const config = appState.customizations.cardworkshop;
+            
+            // Dimensions selon le format
+            const dimensions = {
+                portrait: { width: 300, height: 450 },
+                landscape: { width: 450, height: 300 },
+                square: { width: 350, height: 350 }
+            };
+            
+            const dim = dimensions[config.format] || dimensions.portrait;
+            preview.style.width = `${dim.width}px`;
+            preview.style.height = `${dim.height}px`;
+            
+            // Couleurs selon le style
+            const styles = {
+                elegant: { gradient: 'from-blue-900 to-purple-900', text: 'text-white' },
+                modern: { gradient: 'from-gray-800 to-gray-900', text: 'text-white' },
+                fun: { gradient: 'from-pink-500 to-purple-500', text: 'text-white' },
+                snowy: { gradient: 'from-cyan-900 to-blue-900', text: 'text-white' },
+                gold: { gradient: 'from-amber-900 to-yellow-800', text: 'text-white' }
+            };
+            
+            const style = styles[config.style] || styles.elegant;
+            preview.className = `relative bg-gradient-to-br ${style.gradient} rounded-2xl overflow-hidden`;
+            preview.style.boxShadow = '0 25px 50px rgba(0,0,0,0.5)';
+            
+            // Contenu de la carte
+            let content = `
+                <div class="absolute inset-0 p-6 flex flex-col ${style.text}">
+            `;
+            
+            // Image de fond
+            if (config.images.background) {
+                content += `
+                    <div class="absolute inset-0">
+                        <img src="${config.images.background}" class="w-full h-full object-cover opacity-30">
+                    </div>
+                `;
+            }
+            
+            // Contenu principal
+            content += `
+                <div class="relative z-10 flex-1 flex flex-col items-center justify-center">
+            `;
+            
+            // Photo personnelle
+            if (config.images.foreground) {
+                content += `
+                    <div class="w-24 h-24 rounded-full overflow-hidden border-4 border-white/30 mb-4">
+                        <img src="${config.images.foreground}" class="w-full h-full object-cover">
+                    </div>
+                `;
+            } else {
+                content += `
+                    <div class="text-5xl mb-4">🎄</div>
+                `;
+            }
+            
+            // Messages
+            if (config.messages.main) {
+                content += `
+                    <h4 class="text-2xl font-bold mb-3 text-center">${config.messages.main.split('\n')[0]}</h4>
+                    <p class="text-center text-gray-300 mb-4">${config.messages.main.substring(config.messages.main.indexOf('\n') + 1) || 'Joyeuses fêtes !'}</p>
+                `;
+            } else {
+                content += `
+                    <h4 class="text-2xl font-bold mb-3 text-center">Joyeux Noël !</h4>
+                    <p class="text-center text-gray-300">Votre message apparaîtra ici</p>
+                `;
+            }
+            
+            // Message personnel
+            if (config.messages.personal) {
+                content += `
+                    <div class="mt-6 p-4 bg-white/10 rounded-xl backdrop-blur-sm">
+                        <p class="text-sm italic">"${config.messages.personal}"</p>
+                    </div>
+                `;
+            }
+            
+            content += `
+                </div>
+            `;
+            
+            // Décorations
+            if (config.images.decoration1) {
+                content += `
+                    <div class="absolute top-4 left-4 w-16 h-16">
+                        <img src="${config.images.decoration1}" class="w-full h-full object-contain">
+                    </div>
+                `;
+            }
+            
+            if (config.images.decoration2) {
+                content += `
+                    <div class="absolute bottom-4 right-4 w-16 h-16">
+                        <img src="${config.images.decoration2}" class="w-full h-full object-contain">
+                    </div>
+                `;
+            }
+            
+            // Effets d'animation
+            if (config.effects.includes('snow')) {
+                content += `
+                    <div class="absolute inset-0 pointer-events-none overflow-hidden">
+                        ${Array.from({length: 20}, (_, i) => `
+                            <div class="absolute snowflake" style="
+                                left: ${(i * 5)}%;
+                                animation-delay: ${Math.random() * 5}s;
+                                animation-duration: ${5 + Math.random() * 10}s;
+                            ">❄️</div>
+                        `).join('')}
+                    </div>
+                    <style>
+                        .snowflake {
+                            animation: fall linear infinite;
+                            font-size: 20px;
+                            opacity: 0.7;
+                        }
+                        @keyframes fall {
+                            to { transform: translateY(100vh); }
+                        }
+                    </style>
+                `;
+            }
+            
+            if (config.effects.includes('sparkle')) {
+                content += `
+                    <div class="absolute inset-0 pointer-events-none">
+                        ${Array.from({length: 10}, (_, i) => `
+                            <div class="absolute sparkle" style="
+                                left: ${20 + (i * 8)}%;
+                                top: ${30 + (i * 5)}%;
+                                animation-delay: ${Math.random() * 2}s;
+                            ">✨</div>
+                        `).join('')}
+                    </div>
+                    <style>
+                        .sparkle {
+                            animation: sparkle 2s infinite alternate;
+                            font-size: 24px;
+                        }
+                        @keyframes sparkle {
+                            0% { opacity: 0.3; transform: scale(0.8); }
+                            100% { opacity: 1; transform: scale(1.2); }
+                        }
+                    </style>
+                `;
+            }
+            
+            content += `</div>`;
+            
+            preview.innerHTML = content;
+            
+            // Mettre à jour les détails
+            document.getElementById('cardStylePreview').textContent = 
+                config.style.charAt(0).toUpperCase() + config.style.slice(1);
+            document.getElementById('cardImagesPreview').textContent = 
+                `${Object.keys(config.images).length}/4`;
+            document.getElementById('cardAudioPreview').textContent = 
+                config.audio ? 'Oui' : 'Non';
+            document.getElementById('cardAudioPreview').className = 
+                config.audio ? 'font-semibold text-green-400' : 'font-semibold text-red-400';
+            document.getElementById('cardEffectsPreview').textContent = 
+                config.effects.length;
+        }
+
+        function generateCard() {
+            const creatorName = document.getElementById('creatorName').value || 'Anonyme';
+            const cardData = appState.customizations.cardworkshop;
+            
+            // Créer un ID unique
+            const cardId = 'card_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Préparer les données
+            const data = {
+                id: cardId,
+                creator: creatorName,
+                ...cardData,
+                created: Date.now()
+            };
+            
+            // Sauvegarder dans Firebase si disponible
+            if (database) {
+                database.ref('cards/' + cardId).set(data)
+                    .then(() => {
+                        console.log('Carte sauvegardée dans Firebase');
+                    })
+                    .catch(error => {
+                        console.error('Erreur Firebase:', error);
+                    });
+            }
+            
+            // Générer le lien
+            const baseUrl = window.location.origin + window.location.pathname.replace('creator-studio.html', '');
+            const shareUrl = `${baseUrl}card-preview.html?card=${cardId}`;
+            
+            // Afficher un message de succès
+            showNotification('Carte générée avec succès ! Lien créé.');
+            
+            // Ouvrir dans un nouvel onglet
+            window.open(shareUrl, '_blank');
+        }
+
+        // Panneau de contrôle
+        function initControlPanel() {
+            // Sauvegarde du nom
+            const creatorNameInput = document.getElementById('creatorName');
+            creatorNameInput.addEventListener('input', function() {
+                appState.creatorName = this.value;
+                localStorage.setItem('creatorName', this.value);
+            });
+            
+            // Message par défaut
+            const defaultMessageInput = document.getElementById('defaultMessage');
+            defaultMessageInput.addEventListener('input', function() {
+                // Ce message sera utilisé comme base pour toutes les expériences
+            });
+            
+            // Sélecteur de couleurs
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    colorOptions.forEach(o => o.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    const color = this.dataset.color;
+                    // Appliquer la couleur à l'expérience sélectionnée
+                    if (appState.selectedExperience) {
+                        if (!appState.customizations[appState.selectedExperience]) {
+                            appState.customizations[appState.selectedExperience] = {};
+                        }
+                        appState.customizations[appState.selectedExperience].primaryColor = color;
+                        updateProgress();
+                    }
+                });
+            });
+            
+            // Boutons d'action
+            document.getElementById('quickPreview').addEventListener('click', quickPreviewExperience);
+            document.getElementById('saveDraft').addEventListener('click', saveDraft);
+            document.getElementById('resetAll').addEventListener('click', resetAll);
+            document.getElementById('previewBtn').addEventListener('click', openPreviewModal);
+            document.getElementById('shareBtn').addEventListener('click', openShareModal);
+            document.getElementById('closePreview').addEventListener('click', closePreviewModal);
+        }
+
+        function quickPreviewExperience() {
+            if (!appState.selectedExperience) {
+                showNotification('Veuillez d\'abord sélectionner une expérience');
+                return;
+            }
+            
+            openPreviewModal();
+            loadPreview();
+        }
+
+        function openPreviewModal() {
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+
+        function closePreviewModal() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        function loadPreview() {
+            const container = document.getElementById('previewContainer');
+            
+            if (!appState.selectedExperience) {
+                container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🎮</div>
+                        <h4 class="text-xl font-bold mb-2">Aucune expérience sélectionnée</h4>
+                        <p class="text-gray-400">Veuillez d'abord sélectionner une expérience</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Charger l'aperçu selon l'expérience
+            const experiences = {
+                giftcatcher: `
+                    <div class="text-center w-full max-w-2xl">
+                        <h3 class="text-2xl font-bold mb-4">Gift Catcher Rush - Aperçu</h3>
+                        <div class="bg-gradient-to-b from-gray-900 to-gray-800 rounded-2xl p-8">
+                            <div class="text-6xl mb-6">🎁</div>
+                            <p class="text-gray-300 mb-6">Jeu d'attrape-cadeaux - 30 secondes pour le meilleur score !</p>
+                            <div class="flex justify-center gap-4">
+                                <div class="bg-blue-900/50 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Score</div>
+                                    <div class="text-2xl font-bold">0</div>
+                                </div>
+                                <div class="bg-green-900/50 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Temps</div>
+                                    <div class="text-2xl font-bold">30s</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                winterexplorer: `
+                    <div class="text-center w-full max-w-2xl">
+                        <h3 class="text-2xl font-bold mb-4">Winter Wonderland - Aperçu</h3>
+                        <div class="bg-gradient-to-b from-blue-900 to-cyan-900 rounded-2xl p-8">
+                            <div class="text-6xl mb-6">❄️</div>
+                            <p class="text-gray-300 mb-6">Exploration interactive avec 8 éléments secrets à découvrir</p>
+                            <div class="flex justify-center">
+                                <div class="bg-white/10 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Éléments découverts</div>
+                                    <div class="text-2xl font-bold">0/8</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                collaborativetree: `
+                    <div class="text-center w-full max-w-2xl">
+                        <h3 class="text-2xl font-bold mb-4">Arbre Collaboratif - Aperçu</h3>
+                        <div class="bg-gradient-to-b from-emerald-900 to-green-900 rounded-2xl p-8">
+                            <div class="text-6xl mb-6">🎄</div>
+                            <p class="text-gray-300 mb-6">Arbre de Noël que chacun peut décorer avec un message</p>
+                            <div class="flex justify-center gap-4">
+                                <div class="bg-black/30 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Décorations</div>
+                                    <div class="text-2xl font-bold">${appState.customizations.collaborativetree.decorations.length}</div>
+                                </div>
+                                <div class="bg-black/30 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Style</div>
+                                    <div class="text-2xl font-bold">${appState.customizations.collaborativetree.style}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `,
+                cardworkshop: `
+                    <div class="text-center w-full max-w-2xl">
+                        <h3 class="text-2xl font-bold mb-4">Atelier de Carte - Aperçu</h3>
+                        <div class="bg-gradient-to-b from-purple-900 to-pink-900 rounded-2xl p-8">
+                            <div class="text-6xl mb-6">✨</div>
+                            <p class="text-gray-300 mb-6">Carte personnalisée avec images, messages et effets</p>
+                            <div class="flex justify-center gap-4">
+                                <div class="bg-black/30 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Images</div>
+                                    <div class="text-2xl font-bold">${Object.keys(appState.customizations.cardworkshop.images).length}</div>
+                                </div>
+                                <div class="bg-black/30 p-4 rounded-xl">
+                                    <div class="text-sm text-gray-400">Effets</div>
+                                    <div class="text-2xl font-bold">${appState.customizations.cardworkshop.effects.length}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            };
+            
+            container.innerHTML = experiences[appState.selectedExperience] || experiences.giftcatcher;
+        }
+
+        function openShareModal() {
+            if (!appState.selectedExperience) {
+                showNotification('Veuillez d\'abord sélectionner une expérience');
+                return;
+            }
+            
+            // Naviguer vers l'onglet partage
+            document.querySelector('.nav-item[data-tab="share"]').click();
+        }
+
+        function updateShareTab() {
+            const shareTab = document.getElementById('shareTab');
+            if (!shareTab || !appState.selectedExperience) return;
+            
+            const experiences = {
+                giftcatcher: {
+                    name: 'Gift Catcher Rush',
+                    description: 'Jeu compétitif de 30 secondes',
+                    icon: '🎁',
+                    color: 'from-blue-600 to-cyan-500'
+                },
+                winterexplorer: {
+                    name: 'Winter Wonderland',
+                    description: 'Exploration interactive',
+                    icon: '❄️',
+                    color: 'from-green-600 to-emerald-500'
+                },
+                collaborativetree: {
+                    name: 'Arbre Collaboratif',
+                    description: 'Sapin décoré par tous',
+                    icon: '🎄',
+                    color: 'from-orange-600 to-amber-500'
+                },
+                cardworkshop: {
+                    name: 'Atelier de Carte',
+                    description: 'Carte personnalisée unique',
+                    icon: '✨',
+                    color: 'from-purple-600 to-pink-500'
+                }
+            };
+            
+            const exp = experiences[appState.selectedExperience];
+            
+            shareTab.innerHTML = `
+                <h2 class="text-2xl font-bold mb-2">Partagez votre création</h2>
+                <p class="text-gray-400 mb-6">Générez un lien unique à envoyer à vos proches</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Création Summary -->
+                    <div class="bg-gradient-to-br ${exp.color}/20 to-gray-900/30 rounded-2xl p-6 border ${exp.color.split('from-')[1].split('-')[0]}-700/30">
+                        <h3 class="font-bold text-xl mb-6 flex items-center">
+                            <span class="text-3xl mr-3">${exp.icon}</span>
+                            <span>${exp.name}</span>
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+                                <span>Type :</span>
+                                <span class="font-semibold">${exp.description}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+                                <span>Créateur :</span>
+                                <span class="font-semibold">${appState.creatorName || 'Anonyme'}</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+                                <span>Progression :</span>
+                                <span class="font-semibold">${Math.round((appState.progress.experience + appState.progress.customization + appState.progress.messages) / 3)}%</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+                                <span>Date de création :</span>
+                                <span class="font-semibold">${new Date().toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Sharing Options -->
+                    <div class="bg-gradient-to-br from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+                        <h3 class="font-bold text-xl mb-6">Options de partage</h3>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block mb-3 font-semibold">Message d'accompagnement :</label>
+                                <textarea id="shareMessage" class="w-full p-4 bg-black/30 border border-white/20 rounded-xl h-32">${appState.creatorName || 'Un ami'} vous a préparé une surprise de Noël ! 🎄 Cliquez pour découvrir... ✨</textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block mb-3 font-semibold">Plateformes de partage :</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <button class="share-platform-btn" data-platform="whatsapp">
+                                        <i class="fab fa-whatsapp text-2xl mb-2"></i>
+                                        <span class="text-sm">WhatsApp</span>
+                                    </button>
+                                    <button class="share-platform-btn" data-platform="facebook">
+                                        <i class="fab fa-facebook text-2xl mb-2"></i>
+                                        <span class="text-sm">Facebook</span>
+                                    </button>
+                                    <button class="share-platform-btn" data-platform="twitter">
+                                        <i class="fab fa-twitter text-2xl mb-2"></i>
+                                        <span class="text-sm">Twitter</span>
+                                    </button>
+                                    <button class="share-platform-btn" data-platform="email">
+                                        <i class="fas fa-envelope text-2xl mb-2"></i>
+                                        <span class="text-sm">Email</span>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-black/30 rounded-xl p-5">
+                                <label class="block mb-3 font-semibold">Lien de partage :</label>
+                                <div class="flex mb-4">
+                                    <input type="text" id="shareLink" readonly class="flex-1 p-3 bg-black/50 border border-white/20 rounded-l-lg" value="Générez d'abord votre création...">
+                                    <button id="copyShareLink" class="px-4 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-r-lg">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                                
+                                <button id="generateShareLink" class="w-full py-3 bg-gradient-to-r ${exp.color} rounded-xl font-semibold hover:opacity-90 transition-opacity">
+                                    <i class="fas fa-link mr-2"></i>Générer le lien de partage
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats Preview -->
+                <div class="mt-8 bg-gradient-to-r from-gray-900/50 to-gray-800/50 rounded-2xl p-6 border border-gray-700/30">
+                    <h3 class="font-bold text-xl mb-4">Statistiques (après partage)</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="text-center p-4 bg-black/30 rounded-xl">
+                            <div class="text-2xl font-bold mb-1">0</div>
+                            <div class="text-sm text-gray-400">Vues</div>
+                        </div>
+                        <div class="text-center p-4 bg-black/30 rounded-xl">
+                            <div class="text-2xl font-bold mb-1">0</div>
+                            <div class="text-sm text-gray-400">Partages</div>
+                        </div>
+                        <div class="text-center p-4 bg-black/30 rounded-xl">
+                            <div class="text-2xl font-bold mb-1">0</div>
+                            <div class="text-sm text-gray-400">Temps moyen</div>
+                        </div>
+                        <div class="text-center p-4 bg-black/30 rounded-xl">
+                            <div class="text-2xl font-bold mb-1">0</div>
+                            <div class="text-sm text-gray-400">Réactions</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Initialiser les événements de partage
+            initShareButtons();
+        }
+
+        function initShareButtons() {
+            // Bouton de génération de lien
+            document.getElementById('generateShareLink')?.addEventListener('click', generateShareLink);
+            
+            // Bouton de copie
+            document.getElementById('copyShareLink')?.addEventListener('click', function() {
+                const linkInput = document.getElementById('shareLink');
+                copyToClipboard(linkInput.value);
+                showNotification('Lien copié dans le presse-papier !');
+            });
+            
+            // Boutons de plateformes
+            document.querySelectorAll('.share-platform-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const platform = this.dataset.platform;
+                    shareOnPlatform(platform);
+                });
+            });
+        }
+
+        function generateShareLink() {
+            if (!appState.selectedExperience) {
+                showNotification('Veuillez d\'abord sélectionner une expérience');
+                return;
+            }
+            
+            const creatorName = appState.creatorName || 'Anonyme';
+            const shareMessage = document.getElementById('shareMessage').value;
+            
+            // Générer un ID unique
+            const creationId = 'creation_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Préparer les données
+            const creationData = {
+                id: creationId,
+                experience: appState.selectedExperience,
+                creator: creatorName,
+                customizations: appState.customizations[appState.selectedExperience],
+                message: shareMessage,
+                created: Date.now(),
+                stats: {
+                    views: 0,
+                    shares: 0,
+                    avgTime: 0,
+                    reactions: 0
+                }
+            };
+            
+            // Sauvegarder dans Firebase
+            if (database) {
+                database.ref('creations/' + creationId).set(creationData)
+                    .then(() => {
+                        console.log('Création sauvegardée dans Firebase');
+                    })
+                    .catch(error => {
+                        console.error('Erreur Firebase:', error);
+                    });
+            }
+            
+            // Générer le lien
+            const baseUrl = window.location.origin + window.location.pathname.replace('creator-studio.html', '');
+            let shareUrl = '';
+            
+            switch(appState.selectedExperience) {
+                case 'giftcatcher':
+                    shareUrl = `${baseUrl}gift-catcher.html?share=${creationId}`;
+                    break;
+                case 'winterexplorer':
+                    shareUrl = `${baseUrl}winter-scene.html?share=${creationId}`;
+                    break;
+                case 'collaborativetree':
+                    shareUrl = `${baseUrl}collaborative-tree.html?share=${creationId}`;
+                    break;
+                case 'cardworkshop':
+                    shareUrl = `${baseUrl}card-preview.html?share=${creationId}`;
+                    break;
+                default:
+                    shareUrl = `${baseUrl}index.html?share=${creationId}`;
+            }
+            
+            // Afficher le lien
+            document.getElementById('shareLink').value = shareUrl;
+            
+            showNotification('Lien de partage généré avec succès !');
+        }
+
+        function shareOnPlatform(platform) {
+            const linkInput = document.getElementById('shareLink');
+            const messageInput = document.getElementById('shareMessage');
+            
+            if (!linkInput.value || linkInput.value === 'Générez d\'abord votre création...') {
+                showNotification('Veuillez d\'abord générer un lien de partage');
+                return;
+            }
+            
+            const link = encodeURIComponent(linkInput.value);
+            const message = encodeURIComponent(messageInput.value);
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${message}%0A%0A${link}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${link}&quote=${message}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${message}&url=${link}`;
+                    break;
+                case 'email':
+                    shareUrl = `mailto:?subject=Surprise de Noël !&body=${message}%0A%0A${link}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'noopener,noreferrer');
+            }
+        }
+
+        function updateProgress() {
+            // Calculer la progression de l'expérience
+            appState.progress.experience = appState.selectedExperience ? 100 : 0;
+            
+            // Calculer la progression de la personnalisation
+            let customizationProgress = 0;
+            if (appState.selectedExperience) {
+                const customizations = appState.customizations[appState.selectedExperience];
+                if (customizations) {
+                    const totalFields = Object.keys(customizations).length;
+                    const filledFields = Object.values(customizations).filter(v => {
+                        if (Array.isArray(v)) return v.length > 0;
+                        if (typeof v === 'object') return Object.keys(v).length > 0;
+                        return v !== undefined && v !== null && v !== '';
+                    }).length;
+                    
+                    if (totalFields > 0) {
+                        customizationProgress = Math.round((filledFields / totalFields) * 100);
+                    }
+                }
+            }
+            appState.progress.customization = customizationProgress;
+            
+            // Calculer la progression des messages
+            const creatorName = document.getElementById('creatorName').value;
+            const defaultMessage = document.getElementById('defaultMessage').value;
+            let messagesProgress = 0;
+            
+            if (creatorName) messagesProgress += 50;
+            if (defaultMessage && defaultMessage.length > 10) messagesProgress += 50;
+            
+            appState.progress.messages = messagesProgress;
+            
+            // Mettre à jour les barres de progression
+            document.getElementById('progressExp').textContent = `${appState.progress.experience}%`;
+            document.getElementById('progressExpBar').style.width = `${appState.progress.experience}%`;
+            
+            document.getElementById('progressCustom').textContent = `${appState.progress.customization}%`;
+            document.getElementById('progressCustomBar').style.width = `${appState.progress.customization}%`;
+            
+            document.getElementById('progressMessages').textContent = `${appState.progress.messages}%`;
+            document.getElementById('progressMessagesBar').style.width = `${appState.progress.messages}%`;
+        }
+
+        function saveDraft() {
+            if (!appState.selectedExperience) {
+                showNotification('Veuillez d\'abord sélectionner une expérience');
+                return;
+            }
+            
+            const draftData = {
+                id: appState.draftId || 'draft_' + Date.now(),
+                selectedExperience: appState.selectedExperience,
+                customizations: appState.customizations,
+                creatorName: appState.creatorName,
+                savedAt: Date.now()
+            };
+            
+            // Sauvegarder dans le localStorage
+            localStorage.setItem('xmasCreatorDraft', JSON.stringify(draftData));
+            
+            // Sauvegarder dans Firebase si disponible
+            if (database && appState.creatorName) {
+                const draftRef = database.ref('drafts/' + (appState.creatorName.replace(/\s+/g, '_')) + '/' + draftData.id);
+                draftRef.set(draftData)
+                    .then(() => {
+                        showNotification('Brouillon sauvegardé dans le cloud !');
+                    })
+                    .catch(error => {
+                        console.error('Erreur Firebase:', error);
+                        showNotification('Brouillon sauvegardé localement');
+                    });
+            } else {
+                showNotification('Brouillon sauvegardé localement');
+            }
+            
+            appState.draftId = draftData.id;
+            updateRecentCreations();
+        }
+
+        function loadDrafts() {
+            // Charger depuis le localStorage
+            const savedDraft = localStorage.getItem('xmasCreatorDraft');
+            if (savedDraft) {
+                try {
+                    const draftData = JSON.parse(savedDraft);
+                    
+                    // Restaurer l'état
+                    appState.selectedExperience = draftData.selectedExperience;
+                    appState.customizations = draftData.customizations || appState.customizations;
+                    appState.creatorName = draftData.creatorName || '';
+                    appState.draftId = draftData.id;
+                    
+                    // Mettre à jour l'interface
+                    if (appState.selectedExperience) {
+                        // Sélectionner la carte d'expérience
+                        const expCard = document.querySelector(`[data-experience="${appState.selectedExperience}"]`);
+                        if (expCard) {
+                            expCard.click();
+                        }
+                    }
+                    
+                    if (appState.creatorName) {
+                        document.getElementById('creatorName').value = appState.creatorName;
+                    }
+                    
+                    updateProgress();
+                    updateRecentCreations();
+                    
+                    console.log('Brouillon chargé depuis le localStorage');
+                } catch (e) {
+                    console.error('Erreur de chargement du brouillon:', e);
+                }
+            }
+            
+            // Charger depuis Firebase si connecté
+            if (database && appState.creatorName) {
+                const draftRef = database.ref('drafts/' + (appState.creatorName.replace(/\s+/g, '_')));
+                draftRef.once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            console.log('Brouillons trouvés dans Firebase');
+                            // Ici, vous pourriez proposer une liste de brouillons
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erreur Firebase:', error);
+                    });
+            }
+        }
+
+        function updateRecentCreations() {
+            const container = document.getElementById('recentCreations');
+            
+            // Pour l'instant, juste afficher le brouillon courant
+            if (appState.draftId && appState.selectedExperience) {
+                const experiences = {
+                    giftcatcher: { icon: '🎁', name: 'Gift Catcher' },
+                    winterexplorer: { icon: '❄️', name: 'Winter Land' },
+                    collaborativetree: { icon: '🎄', name: 'Arbre' },
+                    cardworkshop: { icon: '✨', name: 'Carte' }
+                };
+                
+                const exp = experiences[appState.selectedExperience];
+                
+                container.innerHTML = `
+                    <div class="flex items-center p-3 bg-white/5 rounded-lg hover:bg-white/10 cursor-pointer" onclick="loadDraft('${appState.draftId}')">
+                        <div class="text-xl mr-3">${exp.icon}</div>
+                        <div class="flex-1">
+                            <div class="text-sm font-semibold">${exp.name}</div>
+                            <div class="text-xs text-gray-400">Brouillon sauvegardé</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = '<div class="text-sm text-gray-400 text-center py-4">Aucun brouillon</div>';
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Êtes-vous sûr de vouloir tout réinitialiser ? Cette action est irréversible.')) {
+                // Réinitialiser l'état
+                appState.selectedExperience = null;
+                appState.customizations = {
+                    giftcatcher: {},
+                    winterexplorer: {},
+                    collaborativetree: {
+                        style: 'classic',
+                        decorations: [],
+                        invitation: ''
+                    },
+                    cardworkshop: {
+                        style: 'elegant',
+                        format: 'portrait',
+                        images: {},
+                        audio: null,
+                        messages: {},
+                        effects: ['snow']
+                    }
+                };
+                
+                // Réinitialiser l'interface
+                document.querySelectorAll('.experience-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.classList.add('hidden');
+                });
+                
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Activer l'onglet expériences
+                document.querySelector('.nav-item[data-tab="experiences"]').classList.add('active');
+                document.getElementById('experiencesTab').classList.remove('hidden');
+                document.getElementById('experiencesTab').classList.add('active');
+                
+                // Réinitialiser l'affichage sélectionné
+                updateSelectedExperienceDisplay();
+                
+                // Réinitialiser la progression
+                updateProgress();
+                
+                // Réinitialiser l'arbre collaboratif
+                renderTreePreview();
+                
+                // Réinitialiser l'atelier de carte
+                updateCardPreview();
+                
+                showNotification('Tout a été réinitialisé');
+            }
+        }
+
+        // Fonctions utilitaires
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).catch(err => {
+                console.error('Erreur de copie:', err);
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+            });
+        }
+
+        function showNotification(message) {
+            // Créer la notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-3"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Ajouter l'animation
+            notification.style.animation = 'fadeIn 0.3s, fadeOut 0.3s 2.7s';
+            
+            // Supprimer après 3 secondes
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+            
+            // Définir les animations CSS
+            if (!document.querySelector('#notification-styles')) {
+                const style = document.createElement('style');
+                style.id = 'notification-styles';
+                style.textContent = `
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(-20px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes fadeOut {
+                        from { opacity: 1; transform: translateY(0); }
+                        to { opacity: 0; transform: translateY(-20px); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+
+        // Mettre à jour la personnalisation (à remplir selon l'expérience)
+        function updateCustomizationTab() {
+            const tab = document.getElementById('customizationTab');
+            if (!tab || !appState.selectedExperience) return;
+            
+            // Ici, vous pouvez générer des options de personnalisation spécifiques à chaque expérience
+            // Pour l'instant, un message générique
+            tab.innerHTML = `
+                <h2 class="text-2xl font-bold mb-2">Personnalisation</h2>
+                <p class="text-gray-400 mb-6">Personnalisez l'apparence et le comportement de votre expérience</p>
+                
+                <div class="bg-gradient-to-r from-blue-900/30 to-purple-900/30 rounded-2xl p-8 text-center">
+                    <div class="text-5xl mb-6">🎨</div>
+                    <h3 class="text-xl font-bold mb-3">Options de personnalisation</h3>
+                    <p class="text-gray-300 mb-6">Les options spécifiques à "${appState.selectedExperience}" apparaîtront ici</p>
+                    <p class="text-sm text-gray-400">Utilisez le panneau de contrôle à droite pour les réglages généraux</p>
+                </div>
+            `;
+        }
+
+        // Exposer certaines fonctions globalement pour les événements onclick
+        window.quickPreviewExperience = quickPreviewExperience;
+        window.loadDraft = function(draftId) {
+            // Charger un brouillon spécifique
+            console.log('Chargement du brouillon:', draftId);
+            // Implémentez cette fonction selon vos besoins
+        };
+    </script>
+</body>
+</html>

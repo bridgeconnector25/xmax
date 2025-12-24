@@ -1,0 +1,61 @@
+* {
+  box-sizing: border-box;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  background: linear-gradient(120deg, #0f2027, #203a43);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  color: #fff;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #f1c40f;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.to {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.message {
+  font-size: 1.3em;
+  margin: 20px 0;
+}
+
+.from {
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
