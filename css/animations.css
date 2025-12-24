@@ -1,0 +1,595 @@
+/* ===== ANIMATIONS FESTIVES ===== */
+
+/* Flocons de neige animés */
+@keyframes snowFall {
+    0% {
+        transform: translateY(-100px) translateX(0) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) translateX(100px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.snowflake {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 1;
+    animation: snowFall linear infinite;
+}
+
+/* Guirlandes lumineuses */
+@keyframes twinkleLights {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+.fairy-light {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    animation: twinkleLights 2s ease-in-out infinite;
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* Étoiles scintillantes */
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.2;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.twinkle-star {
+    position: absolute;
+    color: var(--christmas-gold);
+    font-size: 20px;
+    pointer-events: none;
+    z-index: 1;
+    animation: twinkle 3s ease-in-out infinite;
+}
+
+/* Boules de Noël qui pendent */
+@keyframes hangingOrnament {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-5px) rotate(5deg);
+    }
+    75% {
+        transform: translateY(5px) rotate(-5deg);
+    }
+}
+
+.ornament {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    animation: hangingOrnament 4s ease-in-out infinite;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Flammes de cheminée */
+@keyframes fireplace {
+    0%, 100% {
+        transform: scaleY(1) rotate(0deg);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scaleY(1.2) rotate(5deg);
+        opacity: 1;
+    }
+}
+
+.fire {
+    position: absolute;
+    width: 60px;
+    height: 80px;
+    background: linear-gradient(to top, #ff6b00, #ffa500, #ffd700);
+    border-radius: 50% 50% 20% 20%;
+    pointer-events: none;
+    z-index: 2;
+    animation: fireplace 2s ease-in-out infinite;
+    filter: blur(5px);
+}
+
+/* Lueur dorée */
+@keyframes goldenGlow {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(249, 168, 37, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 40px rgba(249, 168, 37, 0.8);
+    }
+}
+
+.glow-effect {
+    animation: goldenGlow 3s ease-in-out infinite;
+}
+
+/* Confettis */
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 3;
+    animation: confettiFall linear forwards;
+}
+
+/* Surbrillance de texte */
+@keyframes textGlow {
+    0%, 100% {
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+                     0 0 30px rgba(249, 168, 37, 0.6);
+    }
+}
+
+.text-glow {
+    animation: textGlow 2s ease-in-out infinite;
+}
+
+/* Flottement doux */
+@keyframes gentleFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.float-animation {
+    animation: gentleFloat 4s ease-in-out infinite;
+}
+
+/* Rotation lente */
+@keyframes slowRotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate-animation {
+    animation: slowRotate 20s linear infinite;
+}
+
+/* Échelle pulsante */
+@keyframes pulseScale {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.pulse-animation {
+    animation: pulseScale 2s ease-in-out infinite;
+}
+
+/* Entrée de message */
+@keyframes messageEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(50px) scale(0.8);
+    }
+    60% {
+        transform: translateY(-10px) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.message-entrance {
+    animation: messageEntrance 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Tourbillon de neige */
+@keyframes snowSwirl {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg) scale(1);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(720deg) scale(0.5);
+        opacity: 0;
+    }
+}
+
+.snow-swirl {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px;
+    height: 200px;
+    pointer-events: none;
+    z-index: 2;
+    animation: snowSwirl 5s ease-in-out infinite;
+}
+
+/* Lueur de cadeau */
+@keyframes giftGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+    }
+}
+
+.gift-glow {
+    animation: giftGlow 2s ease-in-out infinite;
+}
+
+/* Vagues de lumière */
+@keyframes lightWave {
+    0% {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.light-wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(249, 168, 37, 0.8), 
+        transparent);
+    pointer-events: none;
+    z-index: 1;
+    animation: lightWave 3s linear infinite;
+}
+
+/* Clignotement de couleurs */
+@keyframes colorFlicker {
+    0%, 100% {
+        color: var(--christmas-red);
+    }
+    33% {
+        color: var(--christmas-gold);
+    }
+    66% {
+        color: var(--christmas-green);
+    }
+}
+
+.color-flicker {
+    animation: colorFlicker 3s infinite;
+}
+
+/* Rebond joyeux */
+@keyframes happyBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(-20px);
+    }
+    50% {
+        transform: translateY(0);
+    }
+    75% {
+        transform: translateY(-10px);
+    }
+}
+
+.bounce-animation {
+    animation: happyBounce 1s ease infinite;
+}
+
+/* Effet de révélation */
+@keyframes reveal {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+        opacity: 0;
+    }
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        opacity: 1;
+    }
+}
+
+.reveal-animation {
+    animation: reveal 1s ease-out forwards;
+}
+
+/* Vibration festive */
+@keyframes festiveShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+.shake-animation {
+    animation: festiveShake 0.5s ease;
+}
+
+/* Défilement de lumières */
+@keyframes lightScroll {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100px 100px;
+    }
+}
+
+.light-scroll {
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 2px, transparent 2px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+    background-size: 100px 100px;
+    animation: lightScroll 20s linear infinite;
+}
+
+/* Étoiles filantes */
+@keyframes shootingStar {
+    0% {
+        transform: translateX(-100px) translateY(-100px);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(calc(100vw + 100px)) translateY(calc(100vh + 100px));
+        opacity: 0;
+    }
+}
+
+.shooting-star {
+    position: absolute;
+    width: 2px;
+    height: 100px;
+    background: linear-gradient(90deg, transparent, white, transparent);
+    pointer-events: none;
+    z-index: 2;
+    transform: rotate(-45deg);
+    animation: shootingStar 3s linear infinite;
+}
+
+/* Clignotement de guirlandes */
+@keyframes garlandBlink {
+    0%, 100% {
+        opacity: 0.3;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+.garland-segment {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    animation: garlandBlink 1s infinite;
+}
+
+.garland-segment:nth-child(2n) {
+    animation-delay: 0.5s;
+}
+
+/* Effet de flou animé */
+@keyframes blurPulse {
+    0%, 100% {
+        filter: blur(0px);
+    }
+    50% {
+        filter: blur(3px);
+    }
+}
+
+.blur-animation {
+    animation: blurPulse 4s ease-in-out infinite;
+}
+
+/* Tourbillon de couleurs */
+@keyframes colorSwirl {
+    0% {
+        filter: hue-rotate(0deg);
+    }
+    100% {
+        filter: hue-rotate(360deg);
+    }
+}
+
+.color-swirl {
+    animation: colorSwirl 10s linear infinite;
+}
+
+/* Croissance de sapin */
+@keyframes treeGrowth {
+    0% {
+        transform: scaleY(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+.tree-growth {
+    animation: treeGrowth 1.5s ease-out forwards;
+    transform-origin: bottom;
+}
+
+/* Chute de cadeaux */
+@keyframes giftFall {
+    0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+.falling-gift {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(45deg, var(--christmas-red), var(--christmas-gold));
+    border-radius: 5px;
+    pointer-events: none;
+    z-index: 2;
+    animation: giftFall 5s linear infinite;
+}
+
+/* Clignotement rythmique */
+@keyframes rhythmBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    25%, 75% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.2;
+    }
+}
+
+.rhythm-blink {
+    animation: rhythmBlink 2s ease-in-out infinite;
+}
+
+/* Effet de rideau */
+@keyframes curtainOpen {
+    0% {
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+    }
+    100% {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+}
+
+.curtain-animation {
+    animation: curtainOpen 1.5s ease-out forwards;
+}
+
+/* Classes utilitaires pour animations */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+.delay-5 { animation-delay: 1s; }
+
+.duration-1 { animation-duration: 0.5s; }
+.duration-2 { animation-duration: 1s; }
+.duration-3 { animation-duration: 2s; }
+.duration-4 { animation-duration: 3s; }
+.duration-5 { animation-duration: 5s; }
+
+/* État initial pour les animations d'entrée */
+.initial-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+/* Classes pour activer/désactiver les animations */
+.animation-paused {
+    animation-play-state: paused !important;
+}
+
+.animation-running {
+    animation-play-state: running !important;
+}
+
+/* Responsive animations */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

@@ -1,42 +1,608 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>🎁 Crée ton message</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎅 Studio Magique de Noël | Créez votre message festif</title>
+    <meta name="description" content="Créez des messages de Noël personnalisés avec animations, musique et effets magiques. Partagez la joie des fêtes !">
+    
+    <!-- Polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
 </head>
-<body>
+<body class="creator-page">
+    <!-- Neige de fond -->
+    <div class="snow-background"></div>
+    
+    <!-- Étoiles scintillantes -->
+    <div class="twinkling-stars"></div>
+    
+    <!-- Container principal -->
+    <div class="magic-container">
+        <!-- Header festif -->
+        <header class="festive-header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <div class="logo-icon">
+                        <i class="fas fa-snowflake"></i>
+                        <i class="fas fa-gift"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h1 class="logo-text">
+                        <span class="logo-primary">Studio Magique</span>
+                        <span class="logo-secondary">de Noël</span>
+                    </h1>
+                </div>
+                <div class="header-tagline">
+                    <p>✨ Créez des souvenirs magiques à partager</p>
+                </div>
+            </div>
+            
+            <!-- Compte à rebours -->
+            <div class="countdown-container">
+                <div class="countdown-title">Noël arrive dans :</div>
+                <div class="countdown-timer" id="globalCountdown">
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-days">00</span>
+                        <span class="countdown-label">Jours</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-hours">00</span>
+                        <span class="countdown-label">Heures</span>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <span class="countdown-number" id="countdown-minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-<div class="card">
-  <h1>Créer un message spécial</h1>
+        <!-- Carte de création principale -->
+        <main class="creation-card">
+            <!-- En-tête avec onglets -->
+            <div class="creation-tabs">
+                <button class="tab-btn active" data-tab="message">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <span>Message</span>
+                </button>
+                <button class="tab-btn" data-tab="design">
+                    <i class="fas fa-palette"></i>
+                    <span>Design</span>
+                </button>
+                <button class="tab-btn" data-tab="preview">
+                    <i class="fas fa-eye"></i>
+                    <span>Aperçu</span>
+                </button>
+            </div>
 
-  <input id="from" placeholder="Ton prénom">
-  <input id="to" placeholder="Nom du destinataire">
+            <!-- Contenu des onglets -->
+            <div class="tab-content-container">
+                <!-- Onglet Message -->
+                <div class="tab-content active" id="tab-message">
+                    <div class="creation-form">
+                        <div class="form-grid">
+                            <!-- Informations de base -->
+                            <div class="form-section">
+                                <h2 class="section-title">
+                                    <i class="fas fa-user-circle"></i>
+                                    Informations personnelles
+                                </h2>
+                                
+                                <div class="input-group">
+                                    <label for="from">
+                                        <i class="fas fa-user"></i>
+                                        Votre nom
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="from" placeholder="Votre prénom" class="modern-input">
+                                        <div class="input-icon">
+                                            <i class="fas fa-pencil-alt"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="input-group">
+                                    <label for="to">
+                                        <i class="fas fa-heart"></i>
+                                        Destinataire
+                                    </label>
+                                    <div class="input-with-icon">
+                                        <input type="text" id="to" placeholder="Nom de votre ami(e)" class="modern-input">
+                                        <div class="input-icon">
+                                            <i class="fas fa-user-friends"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-  <select id="eventType">
-    <option value="noel">🎄 Noël</option>
-    <option value="anniversaire">🎂 Anniversaire</option>
-    <option value="nouvel_an">🎉 Nouvel An</option>
-    <option value="saint_valentin">❤️ Saint-Valentin</option>
-  </select>
+                            <!-- Sélection de l'occasion -->
+                            <div class="form-section">
+                                <h2 class="section-title">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Occasion spéciale
+                                </h2>
+                                
+                                <div class="occasion-grid">
+                                    <div class="occasion-card" data-occasion="noel">
+                                        <div class="occasion-icon">
+                                            <i class="fas fa-tree"></i>
+                                        </div>
+                                        <div class="occasion-text">
+                                            <div class="occasion-title">Noël</div>
+                                            <div class="occasion-subtitle">Joyeuses fêtes</div>
+                                        </div>
+                                        <div class="occasion-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="occasion-card" data-occasion="nouvel_an">
+                                        <div class="occasion-icon">
+                                            <i class="fas fa-glass-cheers"></i>
+                                        </div>
+                                        <div class="occasion-text">
+                                            <div class="occasion-title">Nouvel An</div>
+                                            <div class="occasion-subtitle">Bonne année</div>
+                                        </div>
+                                        <div class="occasion-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="occasion-card" data-occasion="anniversaire">
+                                        <div class="occasion-icon">
+                                            <i class="fas fa-birthday-cake"></i>
+                                        </div>
+                                        <div class="occasion-text">
+                                            <div class="occasion-title">Anniversaire</div>
+                                            <div class="occasion-subtitle">Joyeux anniversaire</div>
+                                        </div>
+                                        <div class="occasion-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="occasion-card" data-occasion="saint_valentin">
+                                        <div class="occasion-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <div class="occasion-text">
+                                            <div class="occasion-title">Saint-Valentin</div>
+                                            <div class="occasion-subtitle">Avec amour</div>
+                                        </div>
+                                        <div class="occasion-check">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sélection de template caché -->
+                                <select id="eventType" class="hidden-select">
+                                    <option value="noel">Noël</option>
+                                    <option value="anniversaire">Anniversaire</option>
+                                    <option value="nouvel_an">Nouvel An</option>
+                                    <option value="saint_valentin">Saint-Valentin</option>
+                                </select>
+                            </div>
 
-  <select id="template">
-    <option value="joyeux">Message classique</option>
-    <option value="amour">Message affectueux</option>
-    <option value="amitie">Message amical</option>
-    <option value="spirituel">Message inspirant</option>
-  </select>
+                            <!-- Type de message -->
+                            <div class="form-section">
+                                <h2 class="section-title">
+                                    <i class="fas fa-comment-alt"></i>
+                                    Ton du message
+                                </h2>
+                                
+                                <div class="tone-selector">
+                                    <div class="tone-option active" data-tone="joyeux">
+                                        <div class="tone-icon">
+                                            <i class="fas fa-laugh-beam"></i>
+                                        </div>
+                                        <div class="tone-text">
+                                            <div class="tone-title">Joyeux</div>
+                                            <div class="tone-desc">Festif et énergique</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tone-option" data-tone="amour">
+                                        <div class="tone-icon">
+                                            <i class="fas fa-heart"></i>
+                                        </div>
+                                        <div class="tone-text">
+                                            <div class="tone-title">Amoureux</div>
+                                            <div class="tone-desc">Tendre et romantique</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tone-option" data-tone="amitie">
+                                        <div class="tone-icon">
+                                            <i class="fas fa-user-friends"></i>
+                                        </div>
+                                        <div class="tone-text">
+                                            <div class="tone-title">Amical</div>
+                                            <div class="tone-desc">Chaleureux et sincère</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="tone-option" data-tone="spirituel">
+                                        <div class="tone-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                        <div class="tone-text">
+                                            <div class="tone-title">Inspirant</div>
+                                            <div class="tone-desc">Profond et réfléchi</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Sélection de template caché -->
+                                <select id="template" class="hidden-select">
+                                    <option value="joyeux">Message classique</option>
+                                    <option value="amour">Message affectueux</option>
+                                    <option value="amitie">Message amical</option>
+                                    <option value="spirituel">Message inspirant</option>
+                                </select>
+                            </div>
 
-  <textarea id="customMsg" rows="4"></textarea>
+                            <!-- Personnalisation du message -->
+                            <div class="form-section full-width">
+                                <h2 class="section-title">
+                                    <i class="fas fa-edit"></i>
+                                    Votre message personnalisé
+                                </h2>
+                                
+                                <div class="message-editor">
+                                    <div class="editor-header">
+                                        <div class="editor-tools">
+                                            <button type="button" class="editor-tool" data-emoji="🎄">
+                                                <i class="fas fa-tree"></i>
+                                            </button>
+                                            <button type="button" class="editor-tool" data-emoji="✨">
+                                                <i class="fas fa-sparkles"></i>
+                                            </button>
+                                            <button type="button" class="editor-tool" data-emoji="❤️">
+                                                <i class="fas fa-heart"></i>
+                                            </button>
+                                            <button type="button" class="editor-tool" data-emoji="🎁">
+                                                <i class="fas fa-gift"></i>
+                                            </button>
+                                            <button type="button" class="editor-tool" data-emoji="☃️">
+                                                <i class="fas fa-snowman"></i>
+                                            </button>
+                                        </div>
+                                        <div class="character-count">
+                                            <span id="charCount">0</span>/500
+                                        </div>
+                                    </div>
+                                    
+                                    <textarea 
+                                        id="customMsg" 
+                                        class="message-textarea" 
+                                        rows="5" 
+                                        placeholder="Écrivez votre message magique ici... Vous pouvez aussi utiliser les modèles prédéfinis 😊"
+                                        maxlength="500"
+                                    ></textarea>
+                                    
+                                    <div class="editor-footer">
+                                        <button type="button" class="template-btn" id="suggestTemplate">
+                                            <i class="fas fa-lightbulb"></i>
+                                            Suggestion magique
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-  <label>
-    <input type="checkbox" id="musicToggle"> 🎵 Ajouter de la musique de fond
-  </label>
+                <!-- Onglet Design -->
+                <div class="tab-content" id="tab-design">
+                    <div class="design-options">
+                        <div class="design-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-palette"></i>
+                                Thème visuel
+                            </h2>
+                            
+                            <div class="theme-grid">
+                                <div class="theme-option active" data-theme="classic">
+                                    <div class="theme-preview classic-theme">
+                                        <div class="theme-icon">
+                                            <i class="fas fa-tree"></i>
+                                        </div>
+                                    </div>
+                                    <div class="theme-name">Classique</div>
+                                </div>
+                                
+                                <div class="theme-option" data-theme="elegant">
+                                    <div class="theme-preview elegant-theme">
+                                        <div class="theme-icon">
+                                            <i class="fas fa-gem"></i>
+                                        </div>
+                                    </div>
+                                    <div class="theme-name">Élégant</div>
+                                </div>
+                                
+                                <div class="theme-option" data-theme="modern">
+                                    <div class="theme-preview modern-theme">
+                                        <div class="theme-icon">
+                                            <i class="fas fa-star"></i>
+                                        </div>
+                                    </div>
+                                    <div class="theme-name">Moderne</div>
+                                </div>
+                                
+                                <div class="theme-option" data-theme="colorful">
+                                    <div class="theme-preview colorful-theme">
+                                        <div class="theme-icon">
+                                            <i class="fas fa-fire"></i>
+                                        </div>
+                                    </div>
+                                    <div class="theme-name">Coloré</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="design-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-music"></i>
+                                Ambiance sonore
+                            </h2>
+                            
+                            <div class="music-options">
+                                <div class="music-toggle">
+                                    <div class="toggle-label">
+                                        <i class="fas fa-volume-up"></i>
+                                        Musique de fond
+                                    </div>
+                                    <label class="switch">
+                                        <input type="checkbox" id="musicToggle" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="music-selection">
+                                    <div class="music-option active" data-music="noel">
+                                        <div class="music-icon">
+                                            <i class="fas fa-music"></i>
+                                        </div>
+                                        <div class="music-info">
+                                            <div class="music-title">Noël Enchanté</div>
+                                            <div class="music-desc">Douce mélodie de Noël</div>
+                                        </div>
+                                        <button class="music-preview">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="music-option" data-music="festive">
+                                        <div class="music-icon">
+                                            <i class="fas fa-bell"></i>
+                                        </div>
+                                        <div class="music-info">
+                                            <div class="music-title">Cloches Festives</div>
+                                            <div class="music-desc">Air joyeux des fêtes</div>
+                                        </div>
+                                        <button class="music-preview">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="music-option" data-music="jazz">
+                                        <div class="music-icon">
+                                            <i class="fas fa-glass-cheers"></i>
+                                        </div>
+                                        <div class="music-info">
+                                            <div class="music-title">Jazz d'Hiver</div>
+                                            <div class="music-desc">Ambiance chaleureuse</div>
+                                        </div>
+                                        <button class="music-preview">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="design-section">
+                            <h2 class="section-title">
+                                <i class="fas fa-magic"></i>
+                                Effets spéciaux
+                            </h2>
+                            
+                            <div class="effects-grid">
+                                <div class="effect-option">
+                                    <label class="effect-checkbox">
+                                        <input type="checkbox" id="effectSnow" checked>
+                                        <span class="checkbox-custom"></span>
+                                        <span class="effect-label">
+                                            <i class="fas fa-snowflake"></i>
+                                            Chute de neige
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="effect-option">
+                                    <label class="effect-checkbox">
+                                        <input type="checkbox" id="effectSparkle" checked>
+                                        <span class="checkbox-custom"></span>
+                                        <span class="effect-label">
+                                            <i class="fas fa-sparkles"></i>
+                                            Scintillements
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="effect-option">
+                                    <label class="effect-checkbox">
+                                        <input type="checkbox" id="effectLights" checked>
+                                        <span class="checkbox-custom"></span>
+                                        <span class="effect-label">
+                                            <i class="fas fa-lightbulb"></i>
+                                            Guirlandes
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="effect-option">
+                                    <label class="effect-checkbox">
+                                        <input type="checkbox" id="effectFireplace">
+                                        <span class="checkbox-custom"></span>
+                                        <span class="effect-label">
+                                            <i class="fas fa-fire"></i>
+                                            Feu de cheminée
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-  <button id="share">Partager sur WhatsApp</button>
-</div>
+                <!-- Onglet Aperçu -->
+                <div class="tab-content" id="tab-preview">
+                    <div class="preview-container">
+                        <h2 class="section-title">
+                            <i class="fas fa-eye"></i>
+                            Aperçu de votre création
+                        </h2>
+                        
+                        <div class="preview-card">
+                            <!-- L'aperçu se remplira dynamiquement -->
+                            <div class="preview-placeholder">
+                                <div class="placeholder-icon">
+                                    <i class="fas fa-magic"></i>
+                                </div>
+                                <p>Votre message magique apparaîtra ici</p>
+                                <p class="placeholder-hint">Remplissez les informations pour voir l'aperçu</p>
+                            </div>
+                        </div>
+                        
+                        <div class="preview-actions">
+                            <button class="preview-action-btn" id="refreshPreview">
+                                <i class="fas fa-sync-alt"></i>
+                                Actualiser l'aperçu
+                            </button>
+                            <button class="preview-action-btn" id="fullscreenPreview">
+                                <i class="fas fa-expand"></i>
+                                Plein écran
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<script src="js/create.js"></script>
+            <!-- Actions principales -->
+            <div class="creation-actions">
+                <button class="action-btn secondary" id="resetBtn">
+                    <i class="fas fa-undo"></i>
+                    Tout recommencer
+                </button>
+                
+                <div class="action-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="creationProgress" style="width: 33%"></div>
+                    </div>
+                    <div class="progress-text">Étape 1 sur 3</div>
+                </div>
+                
+                <button class="action-btn primary" id="shareBtn">
+                    <i class="fab fa-whatsapp"></i>
+                    <span>Partager la magie</span>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer informatif -->
+        <footer class="festive-footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>✨ Comment ça marche</h3>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Créez votre message personnalisé</li>
+                        <li><i class="fas fa-check-circle"></i> Ajoutez des effets magiques</li>
+                        <li><i class="fas fa-check-circle"></i> Partagez avec vos proches</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>🎁 Idées de messages</h3>
+                    <ul>
+                        <li>Pour la famille</li>
+                        <li>Pour les amis</li>
+                        <li>Pour les collègues</li>
+                        <li>Messages romantiques</li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>🔒 Sécurité & Confidentialité</h3>
+                    <p>
+                        <i class="fas fa-lock"></i>
+                        Vos messages sont privés et sécurisés. 
+                        Aucune donnée n'est sauvegardée sur nos serveurs.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>🎄 Joyeuses fêtes de la part de l'équipe du Studio Magique de Noël ✨</p>
+                <p class="copyright">© 2025 - Créé avec ❤️ pour répandre la joie des fêtes</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modals et Overlays -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Message créé avec succès ! 🎉</h2>
+            <p>Votre création magique est prête à être partagée.</p>
+            <div class="modal-actions">
+                <button class="modal-btn" id="copyLinkBtn">
+                    <i class="fas fa-copy"></i>
+                    Copier le lien
+                </button>
+                <button class="modal-btn primary" id="openWhatsAppBtn">
+                    <i class="fab fa-whatsapp"></i>
+                    Ouvrir WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/create.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/music-player.js"></script>
+    
+    <!-- Initialisation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser les effets visuels
+            initSnowEffect();
+            initTwinklingStars();
+            initCountdown();
+            
+            // Initialiser la logique de création
+            initCreationApp();
+        });
+    </script>
 </body>
 </html>

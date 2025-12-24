@@ -1,27 +1,363 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Message reçu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎄 Message Magique Pour Toi | Noël 2025</title>
+    <meta name="description" content="Vous avez reçu un message magique de Noël ! Ouvrez pour découvrir la surprise...">
+    
+    <!-- Polices Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/message.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/icons/favicon.ico">
+    
+    <!-- Meta pour le partage social -->
+    <meta property="og:title" content="🎁 Message Magique de Noël Pour Toi">
+    <meta property="og:description" content="Quelqu'un t'a envoyé un message magique pour Noël !">
+    <meta property="og:image" content="assets/images/social-preview.jpg">
+    <meta property="og:url" content="">
+    <meta name="twitter:card" content="summary_large_image">
 </head>
-<body>
-
-<div class="sparkle"></div>
-<canvas id="snow"></canvas>
-
-<div class="card">
-  <h2 class="fade-in">🎁 Message pour toi <span id="to"></span> </h2>
-  <p class="message fade-in" id="msg"></p>
-  <p class="from fade-in" id="from"></p>
-
-  <button onclick="window.location.href='index.html'">
-    ✨ À ton tour d’envoyer un message
-  </button>
-</div>
-
-<audio id="audio" loop></audio>
-<script src="js/message.js"></script>
+<body class="message-page">
+    <!-- Écran de chargement -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-icon rotate-animation">
+                <i class="fas fa-snowflake"></i>
+            </div>
+            <h2 class="loading-title">Préparation de la magie...</h2>
+            <div class="loading-bar">
+                <div class="loading-progress" id="loadingProgress"></div>
+            </div>
+            <p class="loading-text" id="loadingText">Chargement des étoiles ✨</p>
+        </div>
+    </div>
+    
+    <!-- Introduction mystérieuse -->
+    <div class="intro-overlay" id="introOverlay">
+        <div class="intro-content">
+            <div class="intro-icon float-animation">
+                <i class="fas fa-gift"></i>
+            </div>
+            <h1 class="intro-title text-glow">🎁 Un Message Pour Toi !</h1>
+            <p class="intro-subtitle">Quelqu'un a préparé une surprise magique spécialement pour toi</p>
+            
+            <div class="intro-details">
+                <div class="intro-detail">
+                    <i class="fas fa-user"></i>
+                    <span id="introFrom">Un(e) ami(e)</span>
+                </div>
+                <div class="intro-detail">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span id="introOccasion">Noël 2025</span>
+                </div>
+            </div>
+            
+            <p class="intro-hint">
+                <i class="fas fa-lightbulb"></i>
+                Prépare-toi à vivre un moment magique...
+            </p>
+            
+            <button class="intro-btn pulse-animation" id="revealBtn">
+                <i class="fas fa-magic"></i>
+                Révéler le message magique
+                <i class="fas fa-chevron-down"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Scène principale -->
+    <div class="magic-scene" id="magicScene">
+        <!-- Arrière-plan festif -->
+        <div class="scene-background"></div>
+        
+        <!-- Neige animée -->
+        <div class="snow-container" id="snowContainer"></div>
+        
+        <!-- Guirlandes lumineuses -->
+        <div class="lights-container" id="lightsContainer"></div>
+        
+        <!-- Étoiles scintillantes -->
+        <div class="stars-container" id="starsContainer"></div>
+        
+        <!-- Effets spéciaux -->
+        <div class="effects-container" id="effectsContainer"></div>
+        
+        <!-- Contenu principal -->
+        <div class="scene-content">
+            <!-- En-tête -->
+            <header class="scene-header">
+                <div class="header-left">
+                    <div class="logo-small">
+                        <i class="fas fa-snowflake"></i>
+                        <span>Noël Magique</span>
+                    </div>
+                </div>
+                
+                <div class="header-center">
+                    <div class="countdown-small" id="smallCountdown">
+                        <i class="fas fa-clock"></i>
+                        <span>Noël dans : <strong id="countdownDisplay">00j 00h</strong></span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="scene-control" id="musicToggleBtn">
+                        <i class="fas fa-music"></i>
+                    </button>
+                    <button class="scene-control" id="effectsToggleBtn">
+                        <i class="fas fa-magic"></i>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Carte de message -->
+            <main class="message-card">
+                <!-- Enveloppe d'ouverture -->
+                <div class="envelope-container" id="envelopeContainer">
+                    <div class="envelope">
+                        <div class="envelope-flap"></div>
+                        <div class="envelope-body">
+                            <div class="envelope-seal">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="envelope-address">
+                                <div class="address-line">À : <span id="envelopeTo">Mon ami(e)</span></div>
+                                <div class="address-line">De : <span id="envelopeFrom">Quelqu'un de spécial</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="open-envelope-btn pulse-animation" id="openEnvelopeBtn">
+                        <i class="fas fa-envelope-open-text"></i>
+                        Ouvrir l'enveloppe
+                    </button>
+                </div>
+                
+                <!-- Contenu du message (caché initialement) -->
+                <div class="message-content hidden" id="messageContent">
+                    <!-- Carte principale -->
+                    <div class="main-card">
+                        <!-- En-tête de la carte -->
+                        <div class="card-header">
+                            <div class="occasion-badge" id="occasionBadge">
+                                <i class="fas fa-tree"></i>
+                                <span>Noël 2025</span>
+                            </div>
+                            
+                            <div class="card-title">
+                                <h1 class="title-text">
+                                    <span class="title-greeting" id="greetingText">Joyeux Noël</span>
+                                    <span class="title-name" id="recipientName">Mon Ami !</span>
+                                </h1>
+                            </div>
+                            
+                            <div class="decoration-decoration">
+                                <div class="decoration-item float-animation delay-1">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="decoration-item float-animation delay-2">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div class="decoration-item float-animation delay-3">
+                                    <i class="fas fa-candy-cane"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Corps du message -->
+                        <div class="card-body">
+                            <!-- Illustration -->
+                            <div class="message-illustration">
+                                <div class="illustration-container" id="illustrationContainer">
+                                    <!-- L'illustration sera générée dynamiquement -->
+                                </div>
+                            </div>
+                            
+                            <!-- Message texte -->
+                            <div class="message-text-container">
+                                <div class="message-text-wrapper">
+                                    <div class="message-text" id="messageText">
+                                        Chargement du message magique...
+                                    </div>
+                                    
+                                    <!-- Signature -->
+                                    <div class="message-signature">
+                                        <div class="signature-line"></div>
+                                        <div class="signature-content">
+                                            <i class="fas fa-heart signature-heart"></i>
+                                            <span class="signature-text">
+                                                Avec tout mon amour,
+                                                <strong id="senderName">Ton ami(e)</strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Pied de carte -->
+                        <div class="card-footer">
+                            <!-- Date et heure -->
+                            <div class="card-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span id="messageDate">25 Décembre 2025</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span id="messageTime">Maintenant</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Éléments décoratifs -->
+                            <div class="footer-decoration">
+                                <div class="decoration-snowflakes">
+                                    <i class="fas fa-snowflake"></i>
+                                    <i class="fas fa-snowflake"></i>
+                                    <i class="fas fa-snowflake"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Effets interactifs -->
+                    <div class="interactive-effects">
+                        <button class="effect-btn" id="snowEffectBtn">
+                            <i class="fas fa-snowflake"></i>
+                            Plus de neige !
+                        </button>
+                        <button class="effect-btn" id="sparkleEffectBtn">
+                            <i class="fas fa-sparkles"></i>
+                            Scintillements
+                        </button>
+                        <button class="effect-btn" id="confettiEffectBtn">
+                            <i class="fas fa-party-horn"></i>
+                            Confettis !
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Actions de partage -->
+                <div class="message-actions hidden" id="messageActions">
+                    <div class="actions-title">
+                        <i class="fas fa-share-alt"></i>
+                        Partage la magie !
+                    </div>
+                    
+                    <div class="actions-grid">
+                        <button class="action-btn share-whatsapp" id="shareWhatsAppBtn">
+                            <i class="fab fa-whatsapp"></i>
+                            WhatsApp
+                        </button>
+                        
+                        <button class="action-btn share-facebook" id="shareFacebookBtn">
+                            <i class="fab fa-facebook"></i>
+                            Facebook
+                        </button>
+                        
+                        <button class="action-btn share-twitter" id="shareTwitterBtn">
+                            <i class="fab fa-twitter"></i>
+                            Twitter
+                        </button>
+                        
+                        <button class="action-btn share-copy" id="shareCopyBtn">
+                            <i class="fas fa-copy"></i>
+                            Copier le lien
+                        </button>
+                    </div>
+                    
+                    <div class="create-your-own">
+                        <p>Inspiré par ce message ?</p>
+                        <a href="index.html" class="create-btn">
+                            <i class="fas fa-plus-circle"></i>
+                            Crée ton propre message magique
+                        </a>
+                    </div>
+                </div>
+            </main>
+            
+            <!-- Pied de page -->
+            <footer class="scene-footer">
+                <div class="footer-content">
+                    <div class="footer-message">
+                        <p>
+                            <i class="fas fa-heart"></i>
+                            Ce message a été créé avec le 
+                            <strong>Studio Magique de Noël</strong>
+                        </p>
+                        <p class="footer-sub">
+                            Partage l'amour, répands la joie ✨
+                        </p>
+                    </div>
+                    
+                    <div class="footer-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-eye"></i>
+                            <span id="viewCount">1</span> vue
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-share"></i>
+                            <span id="shareCount">0</span> partages
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        
+        <!-- Musique de fond -->
+        <audio id="backgroundMusic" loop preload="auto">
+            <source src="assets/music/noel-magic.mp3" type="audio/mpeg">
+            <source src="assets/music/noel-magic.ogg" type="audio/ogg">
+        </audio>
+        
+        <!-- Effets sonores -->
+        <audio id="soundEffects" preload="auto"></audio>
+    </div>
+    
+    <!-- Modal de partage réussi -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-content">
+            <div class="share-modal-icon success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Partagé avec succès ! 🎉</h3>
+            <p>Tu viens de répandre un peu de magie de Noël ✨</p>
+            <button class="share-modal-close" id="closeShareModal">
+                <i class="fas fa-times"></i>
+                Continuer
+            </button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/message.js"></script>
+    <script src="js/effects.js"></script>
+    <script src="js/music-player.js"></script>
+    
+    <!-- Initialisation -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialiser l'application
+            initMessageApp();
+            
+            // Démarrer les effets d'arrière-plan
+            initBackgroundEffects();
+            
+            // Mettre à jour le compte à rebours
+            updateCountdownDisplay();
+            setInterval(updateCountdownDisplay, 60000);
+        });
+    </script>
 </body>
 </html>
