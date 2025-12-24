@@ -5,6 +5,7 @@ const msg = params.get("msg");
 const event = params.get("event");
 const musicOn = params.get("music") === "true";
 
+document.getElementById("to").textContent = toName;
 document.getElementById("msg").textContent = msg;
 document.getElementById("from").textContent = `— De la part de ${fromName}`;
 
