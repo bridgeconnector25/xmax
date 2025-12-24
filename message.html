@@ -4,20 +4,24 @@
   <meta charset="UTF-8">
   <title>Message reçu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<div class="sparkle"></div>
+<canvas id="snow"></canvas>
+
 <div class="card">
-  <p class="to" id="to"></p>
-  <p class="message" id="msg"></p>
-  <p class="from" id="from"></p>
+  <h2 class="fade-in">🎁 Message pour toi</h2>
+  <p class="message fade-in" id="msg"></p>
+  <p class="from fade-in" id="from"></p>
 
   <button onclick="window.location.href='index.html'">
-    À ton tour d’envoyer un message 🎁
+    ✨ À ton tour d’envoyer un message
   </button>
 </div>
 
+<audio id="audio" loop></audio>
 <script src="js/message.js"></script>
 </body>
 </html>

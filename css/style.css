@@ -1,61 +1,105 @@
 * {
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
-  font-family: system-ui, sans-serif;
+  font-family: "Segoe UI", sans-serif
 }
 
 body {
-  background: linear-gradient(120deg, #0f2027, #203a43);
   min-height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0;
+  align-items: center;
   color: #fff;
+  background: linear-gradient(120deg, #0f2027, #203a43);
+  overflow: hidden
 }
 
 .card {
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, .08);
   padding: 30px;
   border-radius: 16px;
   width: 90%;
   max-width: 400px;
   text-align: center;
+  backdrop-filter: blur(12px);
+  animation: breathe 6s ease-in-out infinite
 }
 
-h1 {
-  margin-bottom: 20px;
-  font-weight: 400;
+@keyframes breathe {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, .15)
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 255, 255, .35)
+  }
 }
 
-input {
+input,
+select,
+textarea,
+button {
   width: 100%;
   padding: 12px;
   margin-bottom: 15px;
   border-radius: 8px;
   border: none;
+  outline: none
+}
+
+textarea {
+  resize: none
 }
 
 button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
   background: #f1c40f;
   font-weight: bold;
   cursor: pointer;
+  transition: transform .2s, box-shadow .2s
 }
 
-.to {
-  font-size: 1.1em;
-  margin-bottom: 10px;
+button:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .3)
 }
 
-.message {
-  font-size: 1.3em;
-  margin: 20px 0;
+.fade-in {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fade 1s forwards
 }
 
-.from {
-  opacity: 0.8;
-  margin-bottom: 20px;
+@keyframes fade {
+  to {
+    opacity: 1;
+    transform: translateY(0)
+  }
+}
+
+.sparkle {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, .15) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: move 20s linear infinite
+}
+
+@keyframes move {
+  from {
+    background-position: 0 0
+  }
+
+  to {
+    background-position: 200px 200px
+  }
+}
+
+canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none
 }

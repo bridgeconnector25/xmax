@@ -2,17 +2,37 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Message de Noël</title>
+  <title>🎁 Crée ton message</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <div class="card">
-  <h1>🎄 Message de Noël</h1>
+  <h1>Créer un message spécial</h1>
 
-  <input id="from" placeholder="Ton nom">
+  <input id="from" placeholder="Ton prénom">
   <input id="to" placeholder="Nom du destinataire">
+
+  <select id="eventType">
+    <option value="noel">🎄 Noël</option>
+    <option value="anniversaire">🎂 Anniversaire</option>
+    <option value="nouvel_an">🎉 Nouvel An</option>
+    <option value="saint_valentin">❤️ Saint-Valentin</option>
+  </select>
+
+  <select id="template">
+    <option value="joyeux">Message classique</option>
+    <option value="amour">Message affectueux</option>
+    <option value="amitie">Message amical</option>
+    <option value="spirituel">Message inspirant</option>
+  </select>
+
+  <textarea id="customMsg" rows="4"></textarea>
+
+  <label>
+    <input type="checkbox" id="musicToggle"> 🎵 Ajouter de la musique de fond
+  </label>
 
   <button id="share">Partager sur WhatsApp</button>
 </div>
