@@ -1,0 +1,19 @@
+@reference "https://tailwindcss.com/docs/functions-and-directives#reference-directive";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .input {
+    @apply w-full p-3 rounded bg-white/20 outline-none;
+  }
+
+  .btn-primary {
+    @apply w-full py-3 rounded bg-yellow-400 text-black font-bold;
+  }
+
+  .btn-secondary {
+    @apply py-2 px-4 rounded border border-white/30;
+  }
+}
